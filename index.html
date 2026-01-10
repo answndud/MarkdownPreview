@@ -542,6 +542,21 @@
             z-index: 1000;
             border-radius: 0;
         }
+
+        /* Fullscreen preview - centered reading mode */
+        #preview-panel.fullscreen .preview {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 60px;
+            background: var(--bg-card);
+            min-height: 100%;
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.3);
+        }
+
+        #preview-panel.fullscreen {
+            background: var(--bg-secondary);
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
