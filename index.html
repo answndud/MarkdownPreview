@@ -572,6 +572,35 @@
             /* 혹시 모를 내부 정렬 보조 */
             align-self: flex-start;
         }
+
+        /* Fullscreen editor - same style as preview */
+        #editor-panel.fullscreen {
+            background: var(--bg-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #editor-panel.fullscreen .panel-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+        }
+
+        #editor-panel.fullscreen .editor {
+            width: 60%;
+            max-width: none;
+            margin: 50px auto 0;
+            padding: 40px 80px;
+            background: var(--bg-card);
+            overflow-y: auto;
+            box-sizing: border-box;
+            align-self: flex-start;
+        }
     </style>
 </head>
 <body>
@@ -1066,10 +1095,8 @@ print(greeting("World"))
 
         // Clear
         document.getElementById('clear-btn').addEventListener('click', () => {
-            if (confirm('내용을 모두 지우시겠습니까?')) {
-                editor.value = '';
-                updatePreview();
-            }
+            editor.value = '';
+            updatePreview();
         });
 
         // Fullscreen
