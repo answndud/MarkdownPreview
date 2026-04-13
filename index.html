@@ -568,9 +568,14 @@
             background: var(--bg-card);
             overflow-y: auto;
             box-sizing: border-box;
-
-            /* 혹시 모를 내부 정렬 보조 */
             align-self: flex-start;
+            line-height: 2.2;
+            font-size: 1rem;
+        }
+
+        #preview-panel.fullscreen .preview p,
+        #preview-panel.fullscreen .preview li {
+            line-height: 2.2;
         }
 
         /* Fullscreen editor - same style as preview */
@@ -600,6 +605,8 @@
             overflow-y: auto;
             box-sizing: border-box;
             align-self: flex-start;
+            line-height: 2.2;
+            font-size: 1rem;
         }
     </style>
 </head>
