@@ -795,15 +795,7 @@
         // Configure Marked.js for GFM (v12 API)
         marked.use({
             gfm: true,
-            breaks: true,
-            renderer: {
-                listitem(item) {
-                    if (item.task) {
-                        return `<li class="task-list-item">${item.text}</li>\n`;
-                    }
-                    return `<li>${item.text}</li>\n`;
-                }
-            }
+            breaks: true
         });
 
         // Editor & Preview
@@ -818,6 +810,11 @@
             // Re-highlight code blocks + add copy buttons
             preview.querySelectorAll('pre code').forEach(block => {
                 hljs.highlightElement(block);
+            });
+
+            // Task list item class (marked v12 doesn't add it automatically)
+            preview.querySelectorAll('li input[type="checkbox"]').forEach(checkbox => {
+                checkbox.closest('li').classList.add('task-list-item');
             });
             preview.querySelectorAll('pre').forEach(pre => {
                 if (pre.querySelector('.code-copy-btn')) return;
