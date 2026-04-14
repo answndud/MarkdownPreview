@@ -1225,8 +1225,8 @@ print(greeting("World"))
                 panel.classList.add('fullscreen');
                 btn.textContent = '✕';
                 btn.title = '전체화면 닫기';
-                // Restore saved font size when entering fullscreen
                 applyEditorFontSize(editorFontSize);
+                editor.scrollTop = 0;
             }
         });
 
@@ -1240,6 +1240,7 @@ print(greeting("World"))
                 btn.textContent = '✕';
                 btn.title = '전체화면 닫기';
                 applyPreviewFontSize(previewFontSize);
+                document.getElementById('preview').scrollTop = 0;
             }
         });
 
@@ -1338,16 +1339,6 @@ print(greeting("World"))
             if (mod && e.key === 'k') { e.preventDefault(); wrapSelection('[', '](url)'); }
         });
 
-        // Scroll sync: editor → preview
-        let isSyncingScroll = false;
-        editor.addEventListener('scroll', () => {
-            if (isSyncingScroll) return;
-            isSyncingScroll = true;
-            const ratio = editor.scrollTop / (editor.scrollHeight - editor.clientHeight || 1);
-            const previewEl = document.getElementById('preview');
-            previewEl.scrollTop = ratio * (previewEl.scrollHeight - previewEl.clientHeight);
-            requestAnimationFrame(() => { isSyncingScroll = false; });
-        });
 
         // Initial preview
         if (!savedContent) {
