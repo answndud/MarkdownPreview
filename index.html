@@ -475,7 +475,7 @@
         }
 
         footer a {
-            color: var(--accent);
+            color: var(--link-color);
             text-decoration: none;
         }
 
@@ -650,6 +650,49 @@
             min-width: 36px;
             text-align: center;
         }
+
+        /* Code block copy button */
+        .preview pre {
+            position: relative;
+        }
+
+        .code-copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.72rem;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.2s ease;
+            opacity: 0;
+            z-index: 1;
+            line-height: 1.4;
+        }
+
+        .preview pre:hover .code-copy-btn {
+            opacity: 1;
+        }
+
+        .code-copy-btn:hover {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+        }
+
+        /* Mobile fullscreen fix */
+        @media (max-width: 768px) {
+            #preview-panel.fullscreen .preview,
+            #editor-panel.fullscreen .editor {
+                width: 100%;
+                padding: 20px 16px;
+                margin-top: 45px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -705,7 +748,7 @@
                             <button class="font-size-btn" id="editor-font-up">+</button>
                         </div>
                         <button class="panel-btn" id="clear-btn">지우기</button>
-                        <button class="panel-btn" id="fullscreen-editor">⛶</button>
+                        <button class="panel-btn" id="fullscreen-editor" title="전체화면">⛶</button>
                     </div>
                 </div>
                 <textarea class="editor" id="editor" placeholder="마크다운을 입력하세요...
@@ -740,7 +783,7 @@
                             <span class="font-size-value" id="preview-font-value">16px</span>
                             <button class="font-size-btn" id="preview-font-up">+</button>
                         </div>
-                        <button class="panel-btn" id="fullscreen-preview">⛶</button>
+                        <button class="panel-btn" id="fullscreen-preview" title="전체화면">⛶</button>
                     </div>
                 </div>
                 <div class="preview" id="preview"></div>
@@ -782,29 +825,19 @@
             }
         }
 
-        // Configure Marked.js for GFM
-        marked.setOptions({
+        // Configure Marked.js for GFM (v12 API)
+        marked.use({
             gfm: true,
             breaks: true,
-            highlight: function(code, lang) {
-                if (lang && hljs.getLanguage(lang)) {
-                    try {
-                        return hljs.highlight(code, { language: lang }).value;
-                    } catch (e) {}
+            renderer: {
+                listitem(item) {
+                    if (item.task) {
+                        return `<li class="task-list-item">${item.text}</li>\n`;
+                    }
+                    return `<li>${item.text}</li>\n`;
                 }
-                return hljs.highlightAuto(code).value;
             }
         });
-
-        // Custom renderer for task lists
-        const renderer = new marked.Renderer();
-        renderer.listitem = function(text) {
-            if (text.includes('type="checkbox"')) {
-                return `<li class="task-list-item">${text}</li>`;
-            }
-            return `<li>${text}</li>`;
-        };
-        marked.setOptions({ renderer });
 
         // Editor & Preview
         const editor = document.getElementById('editor');
@@ -814,10 +847,24 @@
         function updatePreview() {
             const markdown = editor.value;
             preview.innerHTML = marked.parse(markdown);
-            
-            // Re-highlight code blocks
+
+            // Re-highlight code blocks + add copy buttons
             preview.querySelectorAll('pre code').forEach(block => {
                 hljs.highlightElement(block);
+            });
+            preview.querySelectorAll('pre').forEach(pre => {
+                if (pre.querySelector('.code-copy-btn')) return;
+                const btn = document.createElement('button');
+                btn.className = 'code-copy-btn';
+                btn.textContent = '복사';
+                btn.addEventListener('click', () => {
+                    const code = pre.querySelector('code');
+                    navigator.clipboard.writeText(code ? code.textContent : pre.textContent).then(() => {
+                        btn.textContent = '✓ 복사됨';
+                        setTimeout(() => { btn.textContent = '복사'; }, 1500);
+                    });
+                });
+                pre.appendChild(btn);
             });
 
             // Update word count
@@ -1160,19 +1207,47 @@ print(greeting("World"))
         });
 
         // Fullscreen
+        function exitFullscreen(panel) {
+            panel.classList.remove('fullscreen');
+            const btn = panel.querySelector('[id^="fullscreen-"]');
+            if (btn) { btn.textContent = '⛶'; btn.title = '전체화면'; }
+            // Restore default CSS font size
+            if (panel.id === 'editor-panel') editor.style.fontSize = '';
+            else document.getElementById('preview').style.fontSize = '';
+        }
+
         document.getElementById('fullscreen-editor').addEventListener('click', () => {
-            document.getElementById('editor-panel').classList.toggle('fullscreen');
+            const panel = document.getElementById('editor-panel');
+            const btn = document.getElementById('fullscreen-editor');
+            if (panel.classList.contains('fullscreen')) {
+                exitFullscreen(panel);
+            } else {
+                panel.classList.add('fullscreen');
+                btn.textContent = '✕';
+                btn.title = '전체화면 닫기';
+                // Restore saved font size when entering fullscreen
+                applyEditorFontSize(editorFontSize);
+            }
         });
 
         document.getElementById('fullscreen-preview').addEventListener('click', () => {
-            document.getElementById('preview-panel').classList.toggle('fullscreen');
+            const panel = document.getElementById('preview-panel');
+            const btn = document.getElementById('fullscreen-preview');
+            if (panel.classList.contains('fullscreen')) {
+                exitFullscreen(panel);
+            } else {
+                panel.classList.add('fullscreen');
+                btn.textContent = '✕';
+                btn.title = '전체화면 닫기';
+                applyPreviewFontSize(previewFontSize);
+            }
         });
 
         // ESC to exit fullscreen
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 document.querySelectorAll('.panel.fullscreen').forEach(panel => {
-                    panel.classList.remove('fullscreen');
+                    exitFullscreen(panel);
                 });
             }
         });
@@ -1182,19 +1257,25 @@ print(greeting("World"))
         const FONT_MAX = 28;
         const FONT_STEP = 1;
 
-        let editorFontSize = 16;
-        let previewFontSize = 16;
+        let editorFontSize = parseInt(localStorage.getItem('editor-font-size')) || 16;
+        let previewFontSize = parseInt(localStorage.getItem('preview-font-size')) || 16;
+
+        // Update display values on load
+        document.getElementById('editor-font-value').textContent = editorFontSize + 'px';
+        document.getElementById('preview-font-value').textContent = previewFontSize + 'px';
 
         function applyEditorFontSize(size) {
             editorFontSize = Math.min(FONT_MAX, Math.max(FONT_MIN, size));
             editor.style.fontSize = editorFontSize + 'px';
             document.getElementById('editor-font-value').textContent = editorFontSize + 'px';
+            localStorage.setItem('editor-font-size', editorFontSize);
         }
 
         function applyPreviewFontSize(size) {
             previewFontSize = Math.min(FONT_MAX, Math.max(FONT_MIN, size));
             document.getElementById('preview').style.fontSize = previewFontSize + 'px';
             document.getElementById('preview-font-value').textContent = previewFontSize + 'px';
+            localStorage.setItem('preview-font-size', previewFontSize);
         }
 
         document.getElementById('editor-font-up').addEventListener('click', () => {
@@ -1222,8 +1303,26 @@ print(greeting("World"))
             setTimeout(() => toast.remove(), 2000);
         }
 
-        // Tab key support in editor
+        // Markdown wrap helper
+        function wrapSelection(before, after) {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selected = editor.value.substring(start, end);
+            const replacement = before + selected + after;
+            editor.value = editor.value.substring(0, start) + replacement + editor.value.substring(end);
+            if (selected) {
+                editor.selectionStart = start;
+                editor.selectionEnd = start + replacement.length;
+            } else {
+                editor.selectionStart = editor.selectionEnd = start + before.length;
+            }
+            updatePreview();
+        }
+
+        // Keyboard shortcuts
         editor.addEventListener('keydown', (e) => {
+            const mod = e.metaKey || e.ctrlKey;
+
             if (e.key === 'Tab') {
                 e.preventDefault();
                 const start = editor.selectionStart;
@@ -1231,7 +1330,23 @@ print(greeting("World"))
                 editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
                 editor.selectionStart = editor.selectionEnd = start + 4;
                 updatePreview();
+                return;
             }
+
+            if (mod && e.key === 'b') { e.preventDefault(); wrapSelection('**', '**'); }
+            if (mod && e.key === 'i') { e.preventDefault(); wrapSelection('*', '*'); }
+            if (mod && e.key === 'k') { e.preventDefault(); wrapSelection('[', '](url)'); }
+        });
+
+        // Scroll sync: editor → preview
+        let isSyncingScroll = false;
+        editor.addEventListener('scroll', () => {
+            if (isSyncingScroll) return;
+            isSyncingScroll = true;
+            const ratio = editor.scrollTop / (editor.scrollHeight - editor.clientHeight || 1);
+            const previewEl = document.getElementById('preview');
+            previewEl.scrollTop = ratio * (previewEl.scrollHeight - previewEl.clientHeight);
+            requestAnimationFrame(() => { isSyncingScroll = false; });
         });
 
         // Initial preview
