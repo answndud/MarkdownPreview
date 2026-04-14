@@ -578,37 +578,6 @@
             line-height: 2.2;
         }
 
-        /* Fullscreen editor - same style as preview */
-        #editor-panel.fullscreen {
-            background: var(--bg-secondary);
-            display: flex;
-            justify-content: center;
-        }
-
-        #editor-panel.fullscreen .panel-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            z-index: 10;
-        }
-
-        #editor-panel.fullscreen .editor {
-            width: 60%;
-            max-width: none;
-            margin: 50px 0 0;
-            padding: 40px 80px;
-            background: var(--bg-card);
-            box-sizing: border-box;
-            align-self: stretch;
-            line-height: 2.2;
-            font-size: 1rem;
-            resize: none;
-            overflow-y: auto;
-        }
-
         /* Font size controls - hidden by default, shown in fullscreen */
         .font-size-control {
             display: none;
@@ -742,13 +711,7 @@
                         <span class="word-count" id="word-count">0 자 · 0 단어</span>
                     </div>
                     <div class="panel-actions">
-                        <div class="font-size-control" id="editor-font-control">
-                            <button class="font-size-btn" id="editor-font-down">−</button>
-                            <span class="font-size-value" id="editor-font-value">16px</span>
-                            <button class="font-size-btn" id="editor-font-up">+</button>
-                        </div>
                         <button class="panel-btn" id="clear-btn">지우기</button>
-                        <button class="panel-btn" id="fullscreen-editor" title="전체화면">⛶</button>
                     </div>
                 </div>
                 <textarea class="editor" id="editor" placeholder="마크다운을 입력하세요...
@@ -1211,24 +1174,8 @@ print(greeting("World"))
             panel.classList.remove('fullscreen');
             const btn = panel.querySelector('[id^="fullscreen-"]');
             if (btn) { btn.textContent = '⛶'; btn.title = '전체화면'; }
-            // Restore default CSS font size
-            if (panel.id === 'editor-panel') editor.style.fontSize = '';
-            else document.getElementById('preview').style.fontSize = '';
+            document.getElementById('preview').style.fontSize = '';
         }
-
-        document.getElementById('fullscreen-editor').addEventListener('click', () => {
-            const panel = document.getElementById('editor-panel');
-            const btn = document.getElementById('fullscreen-editor');
-            if (panel.classList.contains('fullscreen')) {
-                exitFullscreen(panel);
-            } else {
-                panel.classList.add('fullscreen');
-                btn.textContent = '✕';
-                btn.title = '전체화면 닫기';
-                applyEditorFontSize(editorFontSize);
-                editor.scrollTop = 0;
-            }
-        });
 
         document.getElementById('fullscreen-preview').addEventListener('click', () => {
             const panel = document.getElementById('preview-panel');
@@ -1258,19 +1205,10 @@ print(greeting("World"))
         const FONT_MAX = 28;
         const FONT_STEP = 1;
 
-        let editorFontSize = parseInt(localStorage.getItem('editor-font-size')) || 16;
         let previewFontSize = parseInt(localStorage.getItem('preview-font-size')) || 16;
 
         // Update display values on load
-        document.getElementById('editor-font-value').textContent = editorFontSize + 'px';
         document.getElementById('preview-font-value').textContent = previewFontSize + 'px';
-
-        function applyEditorFontSize(size) {
-            editorFontSize = Math.min(FONT_MAX, Math.max(FONT_MIN, size));
-            editor.style.fontSize = editorFontSize + 'px';
-            document.getElementById('editor-font-value').textContent = editorFontSize + 'px';
-            localStorage.setItem('editor-font-size', editorFontSize);
-        }
 
         function applyPreviewFontSize(size) {
             previewFontSize = Math.min(FONT_MAX, Math.max(FONT_MIN, size));
@@ -1279,12 +1217,6 @@ print(greeting("World"))
             localStorage.setItem('preview-font-size', previewFontSize);
         }
 
-        document.getElementById('editor-font-up').addEventListener('click', () => {
-            applyEditorFontSize(editorFontSize + FONT_STEP);
-        });
-        document.getElementById('editor-font-down').addEventListener('click', () => {
-            applyEditorFontSize(editorFontSize - FONT_STEP);
-        });
         document.getElementById('preview-font-up').addEventListener('click', () => {
             applyPreviewFontSize(previewFontSize + FONT_STEP);
         });
