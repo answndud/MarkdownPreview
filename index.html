@@ -1326,11 +1326,18 @@ print(greeting("World"))
         });
 
         // Fullscreen
+        function resetEditorAndPreviewScroll() {
+            editor.scrollTop = 0;
+            preview.scrollTop = 0;
+            window.scrollTo(0, 0);
+        }
+
         function exitFullscreen(panel) {
             panel.classList.remove('fullscreen');
             const btn = panel.querySelector('[id^="fullscreen-"]');
             if (btn) { btn.textContent = '⛶'; btn.title = '전체화면'; }
             document.getElementById('preview').style.fontSize = '';
+            resetEditorAndPreviewScroll();
         }
 
         document.getElementById('fullscreen-preview').addEventListener('click', () => {
@@ -1343,7 +1350,7 @@ print(greeting("World"))
                 btn.textContent = '✕';
                 btn.title = '전체화면 닫기';
                 applyPreviewFontSize(previewFontSize);
-                document.getElementById('preview').scrollTop = 0;
+                resetEditorAndPreviewScroll();
             }
         });
 
