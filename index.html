@@ -413,6 +413,65 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
+        .drop-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Drag & drop markdown import */
+        .drop-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(13, 17, 23, 0.72);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        [data-theme="light"] .drop-overlay {
+            background: rgba(246, 248, 250, 0.76);
+        }
+
+        body.drag-over .drop-overlay {
+            opacity: 1;
+        }
+
+        .drop-overlay-content {
+            width: min(520px, 100%);
+            padding: 42px 32px;
+            border: 2px dashed var(--accent-primary);
+            border-radius: 18px;
+            background: var(--bg-card);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+            text-align: center;
+        }
+
+        .drop-overlay-icon {
+            display: block;
+            margin-bottom: 14px;
+            font-size: 2.7rem;
+        }
+
+        .drop-overlay-title {
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .drop-overlay-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
         /* Sample Templates */
         .templates-dropdown {
             position: relative;
@@ -513,6 +572,10 @@
             }
 
             .action-btn span:not(.icon) {
+                display: none;
+            }
+
+            .drop-hint {
                 display: none;
             }
         }
@@ -713,6 +776,7 @@
                     <div class="panel-title">
                         <span>✏️ Markdown</span>
                         <span class="word-count" id="word-count">0 자 · 0 단어</span>
+                        <span class="drop-hint">.md 파일을 페이지에 드롭해 열기</span>
                     </div>
                     <div class="panel-actions">
                         <button class="panel-btn" id="clear-btn">지우기</button>
@@ -762,6 +826,14 @@
         </footer>
     </div>
 
+    <div class="drop-overlay" id="drop-overlay" aria-hidden="true">
+        <div class="drop-overlay-content">
+            <span class="drop-overlay-icon">📄</span>
+            <div class="drop-overlay-title">Markdown 파일을 놓으면 바로 열립니다</div>
+            <div class="drop-overlay-description">.md, .markdown 파일을 읽어 에디터와 미리보기에 즉시 반영합니다.</div>
+        </div>
+    </div>
+
     <script>
         // Theme Toggle
         const themeToggle = document.getElementById('theme-toggle');
@@ -802,6 +874,7 @@
         const editor = document.getElementById('editor');
         const preview = document.getElementById('preview');
         const wordCount = document.getElementById('word-count');
+        const dropOverlay = document.getElementById('drop-overlay');
 
         function updatePreview() {
             const markdown = editor.value;
@@ -841,6 +914,88 @@
         }
 
         editor.addEventListener('input', updatePreview);
+
+        // Drag & drop Markdown import
+        let dragDepth = 0;
+        const markdownFilePattern = /\.(md|markdown|mdown|mkdn)$/i;
+
+        function isFileDrag(e) {
+            return e.dataTransfer && Array.from(e.dataTransfer.types).includes('Files');
+        }
+
+        function isMarkdownFile(file) {
+            return markdownFilePattern.test(file.name) || file.type === 'text/markdown';
+        }
+
+        function showDropOverlay() {
+            document.body.classList.add('drag-over');
+            dropOverlay.setAttribute('aria-hidden', 'false');
+        }
+
+        function hideDropOverlay() {
+            document.body.classList.remove('drag-over');
+            dropOverlay.setAttribute('aria-hidden', 'true');
+        }
+
+        function readMarkdownFile(file) {
+            if (!isMarkdownFile(file)) {
+                showToast('Markdown 파일(.md, .markdown)만 열 수 있습니다');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                editor.value = reader.result;
+                updatePreview();
+                editor.focus();
+                showToast(`${file.name} 파일을 불러왔습니다`);
+            };
+            reader.onerror = () => {
+                showToast('파일을 읽는 중 오류가 발생했습니다');
+            };
+            reader.readAsText(file);
+        }
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            document.addEventListener(eventName, (e) => {
+                if (!isFileDrag(e)) return;
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        });
+
+        document.addEventListener('dragenter', (e) => {
+            if (!isFileDrag(e)) return;
+            dragDepth += 1;
+            showDropOverlay();
+        });
+
+        document.addEventListener('dragover', (e) => {
+            if (!isFileDrag(e)) return;
+            e.dataTransfer.dropEffect = 'copy';
+        });
+
+        document.addEventListener('dragleave', (e) => {
+            if (!isFileDrag(e)) return;
+            dragDepth = Math.max(0, dragDepth - 1);
+            if (dragDepth === 0) hideDropOverlay();
+        });
+
+        document.addEventListener('drop', (e) => {
+            if (!isFileDrag(e)) return;
+            dragDepth = 0;
+            hideDropOverlay();
+
+            const files = e.dataTransfer ? Array.from(e.dataTransfer.files) : [];
+            if (!files.length) return;
+
+            if (files.length > 1) {
+                showToast('한 번에 하나의 Markdown 파일만 열 수 있습니다');
+                return;
+            }
+
+            readMarkdownFile(files[0]);
+        });
 
         // Load saved content
         const savedContent = localStorage.getItem('markdown-content');
