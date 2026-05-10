@@ -631,8 +631,9 @@
         }
 
         #preview-panel.fullscreen .preview {
-            width: min(100%, calc(82ch + 96px)); 
-            max-width: calc(82ch + 96px);
+            --preview-reading-width: 82ch;
+            width: min(100%, calc(var(--preview-reading-width) + 96px));
+            max-width: calc(var(--preview-reading-width) + 96px);
             margin: 50px auto 0;
             padding: 48px;
             background: var(--bg-card);
@@ -722,7 +723,7 @@
             margin-bottom: 1.5em;
         }
 
-        /* Font size controls - hidden by default, shown in fullscreen */
+        /* Reading controls - hidden by default, shown in fullscreen */
         .font-size-control {
             display: none;
             align-items: center;
@@ -762,6 +763,12 @@
             font-family: 'JetBrains Mono', monospace;
             min-width: 36px;
             text-align: center;
+        }
+
+        .reading-control-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 500;
         }
 
         /* Code block copy button */
@@ -821,6 +828,23 @@
             #preview-panel.fullscreen .preview h2 {
                 margin-top: 1.9em;
                 font-size: 1.38em;
+            }
+
+            #preview-panel.fullscreen .panel-actions {
+                gap: 6px;
+            }
+
+            #preview-panel.fullscreen .reading-control-label {
+                display: none;
+            }
+
+            #preview-panel.fullscreen .font-size-btn {
+                width: 26px;
+                height: 26px;
+            }
+
+            #preview-panel.fullscreen .font-size-value {
+                min-width: 34px;
             }
         }
     </style>
@@ -904,9 +928,16 @@
                     </div>
                     <div class="panel-actions">
                         <div class="font-size-control" id="preview-font-control">
+                            <span class="reading-control-label">글자</span>
                             <button class="font-size-btn" id="preview-font-down">−</button>
-                            <span class="font-size-value" id="preview-font-value">16px</span>
+                            <span class="font-size-value" id="preview-font-value">17px</span>
                             <button class="font-size-btn" id="preview-font-up">+</button>
+                        </div>
+                        <div class="font-size-control" id="preview-width-control">
+                            <span class="reading-control-label">폭</span>
+                            <button class="font-size-btn" id="preview-width-down">−</button>
+                            <span class="font-size-value" id="preview-width-value">82ch</span>
+                            <button class="font-size-btn" id="preview-width-up">+</button>
                         </div>
                         <button class="panel-btn" id="fullscreen-preview" title="전체화면">⛶</button>
                     </div>
@@ -1431,6 +1462,7 @@ print(greeting("World"))
             const btn = panel.querySelector('[id^="fullscreen-"]');
             if (btn) { btn.textContent = '⛶'; btn.title = '전체화면'; }
             document.getElementById('preview').style.fontSize = '';
+            document.getElementById('preview').style.removeProperty('--preview-reading-width');
             resetEditorAndPreviewScroll();
         }
 
@@ -1444,6 +1476,7 @@ print(greeting("World"))
                 btn.textContent = '✕';
                 btn.title = '전체화면 닫기';
                 applyPreviewFontSize(previewFontSize);
+                applyPreviewWidth(previewWidth);
                 resetEditorAndPreviewScroll();
             }
         });
@@ -1479,6 +1512,29 @@ print(greeting("World"))
         });
         document.getElementById('preview-font-down').addEventListener('click', () => {
             applyPreviewFontSize(previewFontSize - FONT_STEP);
+        });
+
+        // Reading width controls
+        const WIDTH_MIN = 52;
+        const WIDTH_MAX = 96;
+        const WIDTH_STEP = 4;
+
+        let previewWidth = parseInt(localStorage.getItem('preview-reading-width')) || 82;
+
+        document.getElementById('preview-width-value').textContent = previewWidth + 'ch';
+
+        function applyPreviewWidth(width) {
+            previewWidth = Math.min(WIDTH_MAX, Math.max(WIDTH_MIN, width));
+            document.getElementById('preview').style.setProperty('--preview-reading-width', previewWidth + 'ch');
+            document.getElementById('preview-width-value').textContent = previewWidth + 'ch';
+            localStorage.setItem('preview-reading-width', previewWidth);
+        }
+
+        document.getElementById('preview-width-up').addEventListener('click', () => {
+            applyPreviewWidth(previewWidth + WIDTH_STEP);
+        });
+        document.getElementById('preview-width-down').addEventListener('click', () => {
+            applyPreviewWidth(previewWidth - WIDTH_STEP);
         });
 
         // Toast notification
