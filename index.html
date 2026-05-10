@@ -249,6 +249,9 @@
             padding: 20px;
             overflow-y: auto;
             background: var(--bg-card);
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.7;
         }
 
         /* GitHub Flavored Markdown Styles */
@@ -257,7 +260,7 @@
             margin-top: 24px;
             margin-bottom: 16px;
             font-weight: 600;
-            line-height: 1.25;
+            line-height: 1.3;
             color: var(--text-primary);
         }
 
@@ -279,8 +282,8 @@
         .preview h6 { font-size: 0.85em; color: var(--text-muted); }
 
         .preview p {
-            margin-bottom: 16px;
-            line-height: 1.7;
+            margin: 0 0 1em;
+            line-height: inherit;
         }
 
         .preview a {
@@ -306,13 +309,13 @@
         }
 
         .preview ul, .preview ol {
-            margin-bottom: 16px;
+            margin: 0 0 1em;
             padding-left: 2em;
         }
 
         .preview li {
             margin-bottom: 4px;
-            line-height: 1.7;
+            line-height: inherit;
         }
 
         .preview li + li {
@@ -333,7 +336,7 @@
 
         /* Blockquote */
         .preview blockquote {
-            margin: 16px 0;
+            margin: 1.2em 0;
             padding: 0 1em;
             color: var(--text-secondary);
             border-left: 4px solid var(--blockquote-border);
@@ -354,7 +357,7 @@
         }
 
         .preview pre {
-            margin: 16px 0;
+            margin: 1.2em 0;
             padding: 16px;
             background: var(--code-bg);
             border-radius: 8px;
@@ -614,7 +617,7 @@
         #preview-panel.fullscreen {
             background: var(--bg-secondary);
             display: flex;
-            justify-content: center;
+            align-items: center;
         }
 
         #preview-panel.fullscreen .panel-header {
@@ -628,21 +631,95 @@
         }
 
         #preview-panel.fullscreen .preview {
-            width: 60%;
-            max-width: none;
+            width: min(100%, calc(68ch + 96px));
+            max-width: calc(68ch + 96px);
             margin: 50px auto 0;
-            padding: 40px 80px;
+            padding: 48px;
             background: var(--bg-card);
             overflow-y: auto;
             box-sizing: border-box;
-            align-self: flex-start;
-            line-height: 2.4;
-            font-size: 1rem;
+            align-self: center;
+            color: var(--text-primary);
+            font-size: 17px;
+            font-weight: 400;
+            line-height: 1.82;
         }
 
         #preview-panel.fullscreen .preview p,
+        #preview-panel.fullscreen .preview div {
+            margin: 1.2em 0;
+            line-height: inherit;
+        }
+
+        #preview-panel.fullscreen .preview span {
+            line-height: inherit;
+        }
+
+        #preview-panel.fullscreen .preview ul,
+        #preview-panel.fullscreen .preview ol {
+            margin: 1.15em 0 1.35em;
+            padding-left: 1.6em;
+        }
+
         #preview-panel.fullscreen .preview li {
-            line-height: 2.4;
+            margin: 0.42em 0;
+            line-height: inherit;
+        }
+
+        #preview-panel.fullscreen .preview h1,
+        #preview-panel.fullscreen .preview h2,
+        #preview-panel.fullscreen .preview h3 {
+            line-height: 1.3;
+        }
+
+        #preview-panel.fullscreen .preview h1 {
+            margin-top: 0;
+            margin-bottom: 1em;
+            font-size: 2.1em;
+            font-weight: 600;
+        }
+
+        #preview-panel.fullscreen .preview h2 {
+            margin-top: 2.2em;
+            margin-bottom: 0.8em;
+            font-size: 1.55em;
+            font-weight: 600;
+        }
+
+        #preview-panel.fullscreen .preview h3 {
+            margin-top: 1.9em;
+            margin-bottom: 0.7em;
+            font-size: 1.25em;
+            font-weight: 600;
+        }
+
+        #preview-panel.fullscreen .preview h4,
+        #preview-panel.fullscreen .preview h5,
+        #preview-panel.fullscreen .preview h6 {
+            margin-top: 1.6em;
+            margin-bottom: 0.65em;
+            line-height: 1.35;
+        }
+
+        #preview-panel.fullscreen .preview blockquote {
+            margin: 1.4em 0;
+            padding: 0.1em 0 0.1em 1.1em;
+        }
+
+        #preview-panel.fullscreen .preview blockquote p {
+            margin: 0.7em 0;
+        }
+
+        #preview-panel.fullscreen .preview pre {
+            margin: 1.5em 0;
+            line-height: 1.6;
+        }
+
+        #preview-panel.fullscreen .preview table,
+        #preview-panel.fullscreen .preview img,
+        #preview-panel.fullscreen .preview hr {
+            margin-top: 1.5em;
+            margin-bottom: 1.5em;
         }
 
         /* Font size controls - hidden by default, shown in fullscreen */
@@ -725,8 +802,23 @@
             #preview-panel.fullscreen .preview,
             #editor-panel.fullscreen .editor {
                 width: 100%;
-                padding: 20px 16px;
+                max-width: none;
+                padding: 28px 20px;
                 margin-top: 45px;
+            }
+
+            #preview-panel.fullscreen .preview {
+                font-size: 16px;
+                line-height: 1.78;
+            }
+
+            #preview-panel.fullscreen .preview h1 {
+                font-size: 1.75em;
+            }
+
+            #preview-panel.fullscreen .preview h2 {
+                margin-top: 1.9em;
+                font-size: 1.38em;
             }
         }
     </style>
@@ -1364,11 +1456,11 @@ print(greeting("World"))
         });
 
         // Font size controls
-        const FONT_MIN = 11;
+        const FONT_MIN = 13;
         const FONT_MAX = 28;
         const FONT_STEP = 1;
 
-        let previewFontSize = parseInt(localStorage.getItem('preview-font-size')) || 16;
+        let previewFontSize = parseInt(localStorage.getItem('preview-font-size')) || 17;
 
         // Update display values on load
         document.getElementById('preview-font-value').textContent = previewFontSize + 'px';
@@ -1443,4 +1535,3 @@ print(greeting("World"))
     </script>
 </body>
 </html>
-
