@@ -631,9 +631,9 @@
         }
 
         #preview-panel.fullscreen .preview {
-            --preview-reading-width: 82ch;
-            width: min(100%, calc(var(--preview-reading-width) + 96px));
-            max-width: calc(var(--preview-reading-width) + 96px);
+            --preview-reading-width: 55%;
+            width: var(--preview-reading-width);
+            max-width: none;
             margin: 50px auto 0;
             padding: 48px;
             background: var(--bg-card);
@@ -936,7 +936,7 @@
                         <div class="font-size-control" id="preview-width-control">
                             <span class="reading-control-label">폭</span>
                             <button class="font-size-btn" id="preview-width-down">−</button>
-                            <span class="font-size-value" id="preview-width-value">82ch</span>
+                            <span class="font-size-value" id="preview-width-value">55%</span>
                             <button class="font-size-btn" id="preview-width-up">+</button>
                         </div>
                         <button class="panel-btn" id="fullscreen-preview" title="전체화면">⛶</button>
@@ -1515,19 +1515,19 @@ print(greeting("World"))
         });
 
         // Reading width controls
-        const WIDTH_MIN = 52;
-        const WIDTH_MAX = 96;
-        const WIDTH_STEP = 4;
+        const WIDTH_MIN = 35;
+        const WIDTH_MAX = 95;
+        const WIDTH_STEP = 5;
 
-        let previewWidth = parseInt(localStorage.getItem('preview-reading-width')) || 82;
+        let previewWidth = parseInt(localStorage.getItem('preview-reading-width-percent')) || 55;
 
-        document.getElementById('preview-width-value').textContent = previewWidth + 'ch';
+        document.getElementById('preview-width-value').textContent = previewWidth + '%';
 
         function applyPreviewWidth(width) {
             previewWidth = Math.min(WIDTH_MAX, Math.max(WIDTH_MIN, width));
-            document.getElementById('preview').style.setProperty('--preview-reading-width', previewWidth + 'ch');
-            document.getElementById('preview-width-value').textContent = previewWidth + 'ch';
-            localStorage.setItem('preview-reading-width', previewWidth);
+            document.getElementById('preview').style.setProperty('--preview-reading-width', previewWidth + '%');
+            document.getElementById('preview-width-value').textContent = previewWidth + '%';
+            localStorage.setItem('preview-reading-width-percent', previewWidth);
         }
 
         document.getElementById('preview-width-up').addEventListener('click', () => {
