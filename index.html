@@ -632,6 +632,7 @@
 
         #preview-panel.fullscreen .preview {
             --preview-reading-width: 55%;
+            --preview-line-height: 1.82;
             width: var(--preview-reading-width);
             max-width: none;
             margin: 50px auto 0;
@@ -643,7 +644,7 @@
             color: var(--text-primary);
             font-size: 17px;
             font-weight: 400;
-            line-height: 1.82;
+            line-height: var(--preview-line-height);
         }
 
         #preview-panel.fullscreen .preview p,
@@ -938,6 +939,12 @@
                             <button class="font-size-btn" id="preview-width-down">−</button>
                             <span class="font-size-value" id="preview-width-value">55%</span>
                             <button class="font-size-btn" id="preview-width-up">+</button>
+                        </div>
+                        <div class="font-size-control" id="preview-line-height-control">
+                            <span class="reading-control-label">행간</span>
+                            <button class="font-size-btn" id="preview-line-height-down">−</button>
+                            <span class="font-size-value" id="preview-line-height-value">1.82</span>
+                            <button class="font-size-btn" id="preview-line-height-up">+</button>
                         </div>
                         <button class="panel-btn" id="fullscreen-preview" title="전체화면">⛶</button>
                     </div>
@@ -1463,6 +1470,7 @@ print(greeting("World"))
             if (btn) { btn.textContent = '⛶'; btn.title = '전체화면'; }
             document.getElementById('preview').style.fontSize = '';
             document.getElementById('preview').style.removeProperty('--preview-reading-width');
+            document.getElementById('preview').style.removeProperty('--preview-line-height');
             resetEditorAndPreviewScroll();
         }
 
@@ -1477,6 +1485,7 @@ print(greeting("World"))
                 btn.title = '전체화면 닫기';
                 applyPreviewFontSize(previewFontSize);
                 applyPreviewWidth(previewWidth);
+                applyPreviewLineHeight(previewLineHeight);
                 resetEditorAndPreviewScroll();
             }
         });
@@ -1535,6 +1544,30 @@ print(greeting("World"))
         });
         document.getElementById('preview-width-down').addEventListener('click', () => {
             applyPreviewWidth(previewWidth - WIDTH_STEP);
+        });
+
+        // Reading line-height controls
+        const LINE_HEIGHT_MIN = 1.4;
+        const LINE_HEIGHT_MAX = 2.4;
+        const LINE_HEIGHT_STEP = 0.05;
+
+        let previewLineHeight = parseFloat(localStorage.getItem('preview-line-height')) || 1.82;
+
+        document.getElementById('preview-line-height-value').textContent = previewLineHeight.toFixed(2);
+
+        function applyPreviewLineHeight(lineHeight) {
+            previewLineHeight = Math.min(LINE_HEIGHT_MAX, Math.max(LINE_HEIGHT_MIN, lineHeight));
+            previewLineHeight = Math.round(previewLineHeight * 100) / 100;
+            document.getElementById('preview').style.setProperty('--preview-line-height', previewLineHeight);
+            document.getElementById('preview-line-height-value').textContent = previewLineHeight.toFixed(2);
+            localStorage.setItem('preview-line-height', previewLineHeight);
+        }
+
+        document.getElementById('preview-line-height-up').addEventListener('click', () => {
+            applyPreviewLineHeight(previewLineHeight + LINE_HEIGHT_STEP);
+        });
+        document.getElementById('preview-line-height-down').addEventListener('click', () => {
+            applyPreviewLineHeight(previewLineHeight - LINE_HEIGHT_STEP);
         });
 
         // Toast notification
