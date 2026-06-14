@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -255,7 +255,7 @@
         }
 
         /* GitHub Flavored Markdown Styles */
-        .preview h1, .preview h2, .preview h3, 
+        .preview h1, .preview h2, .preview h3,
         .preview h4, .preview h5, .preview h6 {
             margin-top: 24px;
             margin-bottom: 16px;
@@ -848,18 +848,193 @@
                 min-width: 34px;
             }
         }
+    
+
+        /* Minimal light interface override */
+        :root, [data-theme="light"] {
+            --bg-primary: #f7f8f8;
+            --bg-secondary: #f0f2f2;
+            --bg-tertiary: #e7ebeb;
+            --bg-card: rgba(255, 255, 255, 0.9);
+            --bg-input: #eef0f1;
+            --text-primary: #111416;
+            --text-secondary: #4f5b61;
+            --text-muted: #7b878c;
+            --accent: #0f766e;
+            --accent-primary: #0f766e;
+            --accent-secondary: #0f766e;
+            --accent-light: #0f766e;
+            --accent-glow: rgba(15, 118, 110, 0.08);
+            --success: #157f3b;
+            --warning: #9a6700;
+            --danger: #b42318;
+            --error: #b42318;
+            --border: #d9dedf;
+            --border-color: #d9dedf;
+            --border-hover: #b8c2c6;
+            --shadow: 0 1px 2px rgba(17, 20, 22, 0.06);
+            --shadow-card: 0 1px 2px rgba(17, 20, 22, 0.06);
+            --gradient-accent: none;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #101314;
+            --bg-secondary: #171b1d;
+            --bg-tertiary: #202628;
+            --bg-card: rgba(24, 28, 30, 0.92);
+            --bg-input: #202628;
+            --text-primary: #f2f4f4;
+            --text-secondary: #b4bdc1;
+            --text-muted: #7f8b91;
+            --accent: #72d6c9;
+            --accent-primary: #72d6c9;
+            --accent-secondary: #72d6c9;
+            --accent-light: #72d6c9;
+            --accent-glow: rgba(114, 214, 201, 0.08);
+            --success: #8bd39a;
+            --warning: #e0b85f;
+            --danger: #ffb4ab;
+            --error: #ffb4ab;
+            --border: #30383c;
+            --border-color: #30383c;
+            --border-hover: #465156;
+            --shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+            --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.28);
+            --gradient-accent: none;
+        }
+
+        body {
+            background: var(--bg-primary) !important;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        body::before, .logo-icon, .upload-icon, .drop-overlay-icon, .icon:empty, .card-header-icon, .result-icon {
+            display: none !important;
+        }
+
+        .container {
+            max-width: 1120px;
+            padding: 28px 18px;
+        }
+
+        header {
+            text-align: left;
+            margin-bottom: 22px;
+            padding-top: 0;
+        }
+
+        h1, .logo h1 {
+            color: var(--text-primary) !important;
+            background: none !important;
+            -webkit-text-fill-color: currentColor !important;
+            font-size: clamp(1.45rem, 3vw, 2.05rem) !important;
+            font-weight: 600 !important;
+            letter-spacing: 0 !important;
+            text-shadow: none !important;
+        }
+
+        .subtitle, .logo span {
+            color: var(--text-secondary) !important;
+            font-size: 0.86rem !important;
+            max-width: 620px;
+            margin-left: 0;
+        }
+
+        .theme-toggle, #theme-toggle, #themeToggle {
+            min-width: 64px;
+            min-height: 34px;
+            width: auto !important;
+            height: 34px !important;
+            border-radius: 8px !important;
+            padding: 0 10px !important;
+            background: var(--bg-card) !important;
+            border: 1px solid var(--border-color, var(--border)) !important;
+            color: var(--text-secondary) !important;
+            box-shadow: none !important;
+            transform: none !important;
+            font-size: 0.78rem !important;
+        }
+
+        .card, .panel, .section, .input-panel, .output-panel, .preview-panel,
+        .control-panel, .controls-panel, .options-panel, .settings-panel,
+        .editor-panel, .preview-section, .tool-panel, .qr-card,
+        .generator-card, .scanner-card, .info-section, .stats-panel,
+        .practice-area, .performance-chart, .tips-section, .stat-item,
+        .drop-zone, .upload-zone, .batch-item, .history-item {
+            background: var(--bg-card) !important;
+            border: 1px solid var(--border-color, var(--border)) !important;
+            border-radius: 10px !important;
+            box-shadow: 0 1px 2px rgba(17, 20, 22, 0.06) !important;
+        }
+
+        .card-header, .panel-header, .section-header, .preview-header {
+            padding: 13px 16px !important;
+            border-bottom: 1px solid var(--border-color, var(--border)) !important;
+        }
+
+        .card-body, .panel-body, .section-body, .controls-panel, .preview-section {
+            padding: 16px !important;
+        }
+
+        button, .btn, .button, .tab, .data-type, .preview-tab,
+        .share-btn, .reset-stats-btn, .retry-btn, .reserve-btn,
+        .download-btn, .action-btn, .copy-btn, .panel-btn {
+            border-radius: 8px !important;
+            box-shadow: none !important;
+            background-image: none !important;
+            transform: none !important;
+            transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease !important;
+        }
+
+        .btn-accent, .btn-primary, .btn-success,
+        .tab.active, .data-type.active, .preview-tab.active,
+        .reserve-btn:not(:disabled), .download-btn, .action-btn.primary {
+            background: var(--accent-primary, var(--accent)) !important;
+            border-color: var(--accent-primary, var(--accent)) !important;
+            color: #fff !important;
+        }
+
+        input, textarea, select, .editor, .preview, .output,
+        .input-area, .output-area, .format-select {
+            background: var(--bg-input, var(--bg-secondary)) !important;
+            color: var(--text-primary) !important;
+            border: 1px solid var(--border-color, var(--border)) !important;
+            border-radius: 8px !important;
+        }
+
+        input[type="range"] {
+            accent-color: var(--accent-primary, var(--accent));
+        }
+
+        .drop-zone, .upload-zone {
+            padding: 42px 22px !important;
+            border-style: dashed !important;
+        }
+
+        .section-title, .panel-title, .card-title, .controls-title, h2, h3 {
+            color: var(--text-primary) !important;
+            letter-spacing: 0 !important;
+        }
+
+        footer {
+            color: var(--text-muted) !important;
+            padding: 22px !important;
+            font-size: 0.78rem !important;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="header-left">
-                <h1>📝 MARKDOWN PREVIEW</h1>
+                <h1> MARKDOWN PREVIEW</h1>
             </div>
             <div class="header-actions">
                 <div class="templates-dropdown">
                     <button class="action-btn" id="templates-btn">
-                        <span class="icon">📋</span>
+                        <span class="icon"></span>
                         <span>템플릿</span>
                     </button>
                     <div class="templates-menu" id="templates-menu">
@@ -871,19 +1046,19 @@
                     </div>
                 </div>
                 <button class="action-btn" id="copy-md">
-                    <span class="icon">📄</span>
+                    <span class="icon"></span>
                     <span>MD 복사</span>
                 </button>
                 <button class="action-btn" id="copy-html">
-                    <span class="icon">🌐</span>
+                    <span class="icon"></span>
                     <span>HTML 복사</span>
                 </button>
                 <button class="action-btn primary" id="download-md">
-                    <span class="icon">⬇️</span>
                     <span>다운로드</span>
                 </button>
                 <button class="theme-toggle" id="theme-toggle">
-                    <span id="theme-icon">🌙</span>
+                    <span id="theme-icon"></span>
+                    <span>Light</span>
                 </button>
             </div>
         </header>
@@ -893,7 +1068,7 @@
             <div class="panel" id="editor-panel">
                 <div class="panel-header">
                     <div class="panel-title">
-                        <span>✏️ Markdown</span>
+                        <span> Markdown</span>
                         <span class="word-count" id="word-count">0 자 · 0 단어</span>
                         <span class="drop-hint">.md 파일을 페이지에 드롭해 열기</span>
                     </div>
@@ -925,7 +1100,7 @@
             <div class="panel" id="preview-panel">
                 <div class="panel-header">
                     <div class="panel-title">
-                        <span>👁️ Preview</span>
+                        <span> Preview</span>
                     </div>
                     <div class="panel-actions">
                         <div class="font-size-control" id="preview-font-control">
@@ -946,7 +1121,7 @@
                             <span class="font-size-value" id="preview-line-height-value">1.82</span>
                             <button class="font-size-btn" id="preview-line-height-up">+</button>
                         </div>
-                        <button class="panel-btn" id="fullscreen-preview" title="전체화면">⛶</button>
+                        <button class="panel-btn" id="fullscreen-preview" title="전체화면">전체화면</button>
                     </div>
                 </div>
                 <div class="preview" id="preview"></div>
@@ -960,7 +1135,7 @@
 
     <div class="drop-overlay" id="drop-overlay" aria-hidden="true">
         <div class="drop-overlay-content">
-            <span class="drop-overlay-icon">📄</span>
+            <span class="drop-overlay-icon"></span>
             <div class="drop-overlay-title">Markdown 파일을 놓으면 바로 열립니다</div>
             <div class="drop-overlay-description">.md, .markdown 파일을 읽어 에디터와 미리보기에 즉시 반영합니다.</div>
         </div>
@@ -974,7 +1149,7 @@
         const hljsDark = document.getElementById('hljs-theme-dark');
         const hljsLight = document.getElementById('hljs-theme-light');
 
-        const savedTheme = localStorage.getItem('markdown-preview-theme') || 'dark';
+        const savedTheme = localStorage.getItem('markdown-preview-theme') || 'light';
         setTheme(savedTheme);
 
         themeToggle.addEventListener('click', () => {
@@ -985,8 +1160,9 @@
 
         function setTheme(theme) {
             html.setAttribute('data-theme', theme);
-            themeIcon.textContent = theme === 'dark' ? '🌙' : '☀️';
-            
+            themeIcon.textContent = '';
+            themeToggle.querySelector('span:last-child').textContent = theme === 'dark' ? 'Dark' : 'Light';
+
             if (theme === 'dark') {
                 hljsDark.disabled = false;
                 hljsLight.disabled = true;
@@ -1029,7 +1205,7 @@
                 btn.addEventListener('click', () => {
                     const code = pre.querySelector('code');
                     navigator.clipboard.writeText(code ? code.textContent : pre.textContent).then(() => {
-                        btn.textContent = '✓ 복사됨';
+                        btn.textContent = ' 복사됨';
                         setTimeout(() => { btn.textContent = '복사'; }, 1500);
                     });
                 });
@@ -1143,17 +1319,17 @@
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## 📋 소개
+##  소개
 
 프로젝트에 대한 간단한 설명을 작성하세요.
 
-## ✨ 주요 기능
+##  주요 기능
 
 - 기능 1
 - 기능 2
 - 기능 3
 
-## 🚀 시작하기
+##  시작하기
 
 ### 설치
 
@@ -1168,11 +1344,11 @@ const myProject = require('my-project');
 myProject.init();
 \`\`\`
 
-## 📖 문서
+##  문서
 
 자세한 내용은 [Wiki](https://github.com)를 참조하세요.
 
-## 🤝 기여하기
+##  기여하기
 
 1. Fork
 2. Feature Branch 생성
@@ -1180,7 +1356,7 @@ myProject.init();
 4. Push
 5. Pull Request
 
-## 📄 라이선스
+##  라이선스
 
 MIT License`,
 
@@ -1222,9 +1398,9 @@ def hello():
 
 **태그:** #블로그 #마크다운 #예제`,
 
-            todo: `# 📋 할일 목록
+            todo: `#  할일 목록
 
-## 🎯 오늘 할일
+##  오늘 할일
 
 - [x] 아침 운동
 - [x] 이메일 확인
@@ -1232,19 +1408,19 @@ def hello():
 - [ ] 보고서 작성
 - [ ] 코드 리뷰
 
-## 📅 이번 주 목표
+##  이번 주 목표
 
 - [ ] 새 기능 개발 완료
 - [ ] 테스트 코드 작성
 - [ ] 문서 업데이트
 
-## 💡 아이디어
+##  아이디어
 
 1. 첫 번째 아이디어
 2. 두 번째 아이디어
 3. 세 번째 아이디어
 
-## 📝 메모
+##  메모
 
 > 중요한 메모 내용...
 
@@ -1276,7 +1452,7 @@ def hello():
 | 사용자 수 | 1 | 10 | 무제한 |
 | 저장 공간 | 1GB | 100GB | 무제한 |
 | API 호출 | 1,000/일 | 100,000/일 | 무제한 |
-| 지원 | ❌ | ✅ | ✅ 우선 지원 |
+| 지원 |  |  |  우선 지원 |
 | 가격 | 무료 | $10/월 | 문의 |`,
 
             all: `# Markdown 전체 문법 예제
@@ -1364,7 +1540,7 @@ console.log(greeting('World'));
 # Python 코드 블록
 def greeting(name):
     return f"Hello, {name}!"
-    
+
 print(greeting("World"))
 \`\`\`
 
@@ -1467,7 +1643,7 @@ print(greeting("World"))
         function exitFullscreen(panel) {
             panel.classList.remove('fullscreen');
             const btn = panel.querySelector('[id^="fullscreen-"]');
-            if (btn) { btn.textContent = '⛶'; btn.title = '전체화면'; }
+            if (btn) { btn.textContent = ''; btn.title = '전체화면'; }
             document.getElementById('preview').style.fontSize = '';
             document.getElementById('preview').style.removeProperty('--preview-reading-width');
             document.getElementById('preview').style.removeProperty('--preview-line-height');
@@ -1481,7 +1657,7 @@ print(greeting("World"))
                 exitFullscreen(panel);
             } else {
                 panel.classList.add('fullscreen');
-                btn.textContent = '✕';
+                btn.textContent = '';
                 btn.title = '전체화면 닫기';
                 applyPreviewFontSize(previewFontSize);
                 applyPreviewWidth(previewWidth);
@@ -1574,7 +1750,7 @@ print(greeting("World"))
         function showToast(message) {
             const existing = document.querySelector('.toast');
             if (existing) existing.remove();
-            
+
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.textContent = message;
