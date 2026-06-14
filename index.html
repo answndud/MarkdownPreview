@@ -848,188 +848,13 @@
                 min-width: 34px;
             }
         }
-    
-
-        /* Minimal light interface override */
-        :root, [data-theme="light"] {
-            --bg-primary: #f7f8f8;
-            --bg-secondary: #f0f2f2;
-            --bg-tertiary: #e7ebeb;
-            --bg-card: rgba(255, 255, 255, 0.9);
-            --bg-input: #eef0f1;
-            --text-primary: #111416;
-            --text-secondary: #4f5b61;
-            --text-muted: #7b878c;
-            --accent: #0f766e;
-            --accent-primary: #0f766e;
-            --accent-secondary: #0f766e;
-            --accent-light: #0f766e;
-            --accent-glow: rgba(15, 118, 110, 0.08);
-            --success: #157f3b;
-            --warning: #9a6700;
-            --danger: #b42318;
-            --error: #b42318;
-            --border: #d9dedf;
-            --border-color: #d9dedf;
-            --border-hover: #b8c2c6;
-            --shadow: 0 1px 2px rgba(17, 20, 22, 0.06);
-            --shadow-card: 0 1px 2px rgba(17, 20, 22, 0.06);
-            --gradient-accent: none;
-        }
-
-        [data-theme="dark"] {
-            --bg-primary: #101314;
-            --bg-secondary: #171b1d;
-            --bg-tertiary: #202628;
-            --bg-card: rgba(24, 28, 30, 0.92);
-            --bg-input: #202628;
-            --text-primary: #f2f4f4;
-            --text-secondary: #b4bdc1;
-            --text-muted: #7f8b91;
-            --accent: #72d6c9;
-            --accent-primary: #72d6c9;
-            --accent-secondary: #72d6c9;
-            --accent-light: #72d6c9;
-            --accent-glow: rgba(114, 214, 201, 0.08);
-            --success: #8bd39a;
-            --warning: #e0b85f;
-            --danger: #ffb4ab;
-            --error: #ffb4ab;
-            --border: #30383c;
-            --border-color: #30383c;
-            --border-hover: #465156;
-            --shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
-            --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.28);
-            --gradient-accent: none;
-        }
-
-        body {
-            background: var(--bg-primary) !important;
-            color: var(--text-primary);
-            line-height: 1.5;
-        }
-
-        body::before, .logo-icon, .upload-icon, .drop-overlay-icon, .icon:empty, .card-header-icon, .result-icon {
-            display: none !important;
-        }
-
-        .container {
-            max-width: 1120px;
-            padding: 28px 18px;
-        }
-
-        header {
-            text-align: left;
-            margin-bottom: 22px;
-            padding-top: 0;
-        }
-
-        h1, .logo h1 {
-            color: var(--text-primary) !important;
-            background: none !important;
-            -webkit-text-fill-color: currentColor !important;
-            font-size: clamp(1.45rem, 3vw, 2.05rem) !important;
-            font-weight: 600 !important;
-            letter-spacing: 0 !important;
-            text-shadow: none !important;
-        }
-
-        .subtitle, .logo span {
-            color: var(--text-secondary) !important;
-            font-size: 0.86rem !important;
-            max-width: 620px;
-            margin-left: 0;
-        }
-
-        .theme-toggle, #theme-toggle, #themeToggle {
-            min-width: 64px;
-            min-height: 34px;
-            width: auto !important;
-            height: 34px !important;
-            border-radius: 8px !important;
-            padding: 0 10px !important;
-            background: var(--bg-card) !important;
-            border: 1px solid var(--border-color, var(--border)) !important;
-            color: var(--text-secondary) !important;
-            box-shadow: none !important;
-            transform: none !important;
-            font-size: 0.78rem !important;
-        }
-
-        .card, .panel, .section, .input-panel, .output-panel, .preview-panel,
-        .control-panel, .controls-panel, .options-panel, .settings-panel,
-        .editor-panel, .preview-section, .tool-panel, .qr-card,
-        .generator-card, .scanner-card, .info-section, .stats-panel,
-        .practice-area, .performance-chart, .tips-section, .stat-item,
-        .drop-zone, .upload-zone, .batch-item, .history-item {
-            background: var(--bg-card) !important;
-            border: 1px solid var(--border-color, var(--border)) !important;
-            border-radius: 10px !important;
-            box-shadow: 0 1px 2px rgba(17, 20, 22, 0.06) !important;
-        }
-
-        .card-header, .panel-header, .section-header, .preview-header {
-            padding: 13px 16px !important;
-            border-bottom: 1px solid var(--border-color, var(--border)) !important;
-        }
-
-        .card-body, .panel-body, .section-body, .controls-panel, .preview-section {
-            padding: 16px !important;
-        }
-
-        button, .btn, .button, .tab, .data-type, .preview-tab,
-        .share-btn, .reset-stats-btn, .retry-btn, .reserve-btn,
-        .download-btn, .action-btn, .copy-btn, .panel-btn {
-            border-radius: 8px !important;
-            box-shadow: none !important;
-            background-image: none !important;
-            transform: none !important;
-            transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease !important;
-        }
-
-        .btn-accent, .btn-primary, .btn-success,
-        .tab.active, .data-type.active, .preview-tab.active,
-        .reserve-btn:not(:disabled), .download-btn, .action-btn.primary {
-            background: var(--accent-primary, var(--accent)) !important;
-            border-color: var(--accent-primary, var(--accent)) !important;
-            color: #fff !important;
-        }
-
-        input, textarea, select, .editor, .preview, .output,
-        .input-area, .output-area, .format-select {
-            background: var(--bg-input, var(--bg-secondary)) !important;
-            color: var(--text-primary) !important;
-            border: 1px solid var(--border-color, var(--border)) !important;
-            border-radius: 8px !important;
-        }
-
-        input[type="range"] {
-            accent-color: var(--accent-primary, var(--accent));
-        }
-
-        .drop-zone, .upload-zone {
-            padding: 42px 22px !important;
-            border-style: dashed !important;
-        }
-
-        .section-title, .panel-title, .card-title, .controls-title, h2, h3 {
-            color: var(--text-primary) !important;
-            letter-spacing: 0 !important;
-        }
-
-        footer {
-            color: var(--text-muted) !important;
-            padding: 22px !important;
-            font-size: 0.78rem !important;
-        }
-
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <div class="header-left">
-                <h1> MARKDOWN PREVIEW</h1>
+                <h1>MARKDOWN PREVIEW</h1>
             </div>
             <div class="header-actions">
                 <div class="templates-dropdown">
@@ -1056,9 +881,8 @@
                 <button class="action-btn primary" id="download-md">
                     <span>다운로드</span>
                 </button>
-                <button class="theme-toggle" id="theme-toggle">
+                <button class="theme-toggle" id="theme-toggle" aria-label="테마 변경">
                     <span id="theme-icon"></span>
-                    <span>Light</span>
                 </button>
             </div>
         </header>
@@ -1160,8 +984,8 @@
 
         function setTheme(theme) {
             html.setAttribute('data-theme', theme);
-            themeIcon.textContent = '';
-            themeToggle.querySelector('span:last-child').textContent = theme === 'dark' ? 'Dark' : 'Light';
+            themeIcon.textContent = theme === 'dark' ? 'D' : 'L';
+            themeToggle.setAttribute('aria-label', theme === 'dark' ? '라이트 모드로 변경' : '다크 모드로 변경');
 
             if (theme === 'dark') {
                 hljsDark.disabled = false;
