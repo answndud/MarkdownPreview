@@ -1473,6 +1473,9 @@ print(greeting("World"))
                     .pdf-x th { background:${pdfCodeBg}; font-weight:600; }
                     .pdf-x hr { margin:16px 0; border:none; border-top:2px solid ${pdfBorder}; }
                     .pdf-x img { display:block; max-width:100%; height:auto; margin:14px 0; }
+                    .pdf-x > h1,.pdf-x > h2,.pdf-x > h3,.pdf-x > h4,.pdf-x > h5,.pdf-x > h6,
+                    .pdf-x > p,.pdf-x > ul,.pdf-x > ol,.pdf-x > blockquote,.pdf-x > pre,
+                    .pdf-x > table,.pdf-x > hr,.pdf-x > img { break-inside:avoid; page-break-inside:avoid; }
                 `;
                 exportRoot.appendChild(pdfStyle);
 
@@ -1515,12 +1518,47 @@ print(greeting("World"))
                 const margin = 10;
                 const contentWidth = pageWidth - margin * 2;
                 const contentHeight = pageHeight - margin * 2;
-                const pixelsPerPage = Math.floor(canvas.width * contentHeight / contentWidth);
-                let sourceY = 0;
-                let page = 0;
+                const pixelsPerPage = canvas.width * contentHeight / contentWidth;
+                // Use the capture width directly; the document zoom is restored
+                // above and must not change the canvas-to-DOM scale calculation.
+                const canvasScale = canvas.width / PDF_WIDTH;
+                const blocks = Array.from(pdfContent.children)
+                    .map((element) => {
+                        const rect = element.getBoundingClientRect();
+                        return {
+                            top: rect.top * canvasScale,
+                            bottom: rect.bottom * canvasScale,
+                            height: rect.height * canvasScale,
+                            element
+                        };
+                    })
+                    .filter((block) => block.height > 0);
 
-                while (sourceY < canvas.height) {
-                    const sliceHeight = Math.min(pixelsPerPage, canvas.height - sourceY);
+                // Pick page breaks between rendered blocks. This keeps normal
+                // paragraphs, formulas, code blocks, tables, and images intact.
+                const pageBreaks = [0];
+                let pageStart = 0;
+                while (pageStart + pixelsPerPage < canvas.height) {
+                    const target = pageStart + pixelsPerPage;
+                    const crossingBlock = blocks.find((block) =>
+                        block.top > pageStart + 4 && block.top < target && block.bottom > target
+                    );
+                    let nextBreak = crossingBlock ? crossingBlock.top : target;
+
+                    // If the next block itself is taller than a page, it must be
+                    // split; otherwise avoid an empty or near-empty page.
+                    if (nextBreak <= pageStart + 4 || nextBreak >= canvas.height - 1) {
+                        nextBreak = target;
+                    }
+
+                    pageBreaks.push(nextBreak);
+                    pageStart = nextBreak;
+                }
+                pageBreaks.push(canvas.height);
+
+                for (let page = 0; page < pageBreaks.length - 1; page += 1) {
+                    const sourceY = pageBreaks[page];
+                    const sliceHeight = pageBreaks[page + 1] - sourceY;
                     const pageCanvas = document.createElement('canvas');
                     pageCanvas.width = canvas.width;
                     pageCanvas.height = Math.ceil(sliceHeight);
@@ -1531,8 +1569,6 @@ print(greeting("World"))
 
                     if (page > 0) pdf.addPage();
                     pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, contentWidth, sliceHeight * contentWidth / canvas.width);
-                    sourceY += sliceHeight;
-                    page += 1;
                 }
 
                 exportRoot.remove();
