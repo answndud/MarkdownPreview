@@ -1415,58 +1415,39 @@ print(greeting("World"))
                         image.addEventListener('error', resolve, { once: true });
                     })));
 
-                // Build a fully isolated PDF container with its own scoped styles.
-                // This avoids conflicts with the page's existing CSS rules.
-                const PDF_WIDTH = 700;
-                const pdfBg = '\1';
-                const pdfText = '\1';
-                const pdfSecondary = '\1';
-                const pdfMuted = '\1';
-                const pdfBorder = '\1';
-                const pdfCodeBg = '\1';
-                const pdfLink = '\1';
-                const pdfBlockBorder = '\1';
+                // Clone the actual preview so the PDF uses the same typography, colors,
+                // spacing, code highlighting, tables, and image sizing as the screen.
+                const PDF_WIDTH = Math.max(640, Math.round(preview.getBoundingClientRect().width));
+                const pdfBg = getComputedStyle(preview).backgroundColor || '#ffffff';
 
                 exportRoot = document.createElement('div');
                 exportRoot.className = 'pdf-export-clone';
-                exportRoot.style.cssText = `position:fixed;left:-9999px;top:0;width:${PDF_WIDTH}px;overflow:visible;zoom:1;background:${pdfBg};`;
+                exportRoot.style.cssText = `position:fixed;left:-100000px;top:0;width:${PDF_WIDTH}px;overflow:visible;background:${pdfBg};`;
                 document.body.appendChild(exportRoot);
 
-                // Scoped style – no dependency on page CSS
                 const pdfStyle = document.createElement('style');
                 pdfStyle.textContent = `
-                    .pdf-x { padding:24px; font-size:10px; line-height:1.6; color:${pdfText}; font-family:'Noto Sans KR',sans-serif; word-wrap:break-word; }
-                    .pdf-x h1,.pdf-x h2,.pdf-x h3,.pdf-x h4,.pdf-x h5,.pdf-x h6 { font-weight:600; line-height:1.3; color:${pdfText}; }
-                    .pdf-x h1 { font-size:2em; margin:18px 0 10px; padding-bottom:0.2em; border-bottom:1px solid ${pdfBorder}; }
-                    .pdf-x h2 { font-size:1.5em; margin:16px 0 8px; padding-bottom:0.2em; border-bottom:1px solid ${pdfBorder}; }
-                    .pdf-x h3 { font-size:1.25em; margin:12px 0 6px; }
-                    .pdf-x h4 { font-size:1em; margin:10px 0 5px; }
-                    .pdf-x h5 { font-size:0.875em; margin:8px 0 4px; }
-                    .pdf-x h6 { font-size:0.85em; margin:8px 0 4px; color:${pdfMuted}; }
-                    .pdf-x p { margin:0 0 8px; }
-                    .pdf-x a { color:${pdfLink}; text-decoration:none; }
-                    .pdf-x strong { font-weight:600; }
-                    .pdf-x del { text-decoration:line-through; color:${pdfMuted}; }
-                    .pdf-x ul,.pdf-x ol { margin:0 0 8px; padding-left:2em; }
-                    .pdf-x li { margin-bottom:2px; }
-                    .pdf-x li.task-list-item { list-style:none; margin-left:-1.5em; }
-                    .pdf-x input[type='checkbox'] { margin-right:6px; }
-                    .pdf-x blockquote { margin:8px 0; padding:0 1em; border-left:4px solid ${pdfBlockBorder}; color:${pdfSecondary}; }
-                    .pdf-x blockquote p { margin-bottom:0; }
-                    .pdf-x code { font-family:'JetBrains Mono',monospace; font-size:0.85em; padding:0.15em 0.3em; background:${pdfCodeBg}; }
-                    .pdf-x pre { margin:8px 0; padding:12px; background:${pdfCodeBg}; border:1px solid ${pdfBorder}; overflow-x:auto; }
-                    .pdf-x pre code { padding:0; background:transparent; font-size:0.85em; line-height:1.6; }
-                    .pdf-x table { width:100%; border-collapse:collapse; margin:10px 0; }
-                    .pdf-x th,.pdf-x td { padding:6px 10px; border:1px solid ${pdfBorder}; text-align:left; }
-                    .pdf-x th { background:${pdfCodeBg}; font-weight:600; }
-                    .pdf-x hr { margin:16px 0; border:none; border-top:2px solid ${pdfBorder}; }
-                    .pdf-x img { max-width:100%; margin:10px 0; }
+                    .pdf-export-clone .pdf-export-preview {
+                        display:block !important;
+                        width:${PDF_WIDTH}px !important;
+                        height:auto !important;
+                        min-height:0 !important;
+                        max-height:none !important;
+                        flex:none !important;
+                        overflow:visible !important;
+                        box-sizing:border-box !important;
+                    }
+                    .pdf-export-clone .code-copy-btn { display:none !important; }
+                    .pdf-export-clone pre,
+                    .pdf-export-clone table,
+                    .pdf-export-clone blockquote,
+                    .pdf-export-clone img { break-inside:avoid; page-break-inside:avoid; }
                 `;
                 exportRoot.appendChild(pdfStyle);
 
-                const pdfContent = document.createElement('div');
-                pdfContent.className = 'pdf-x';
-                pdfContent.innerHTML = preview.innerHTML;
+                const pdfContent = preview.cloneNode(true);
+                pdfContent.classList.add('pdf-export-preview');
+                pdfContent.removeAttribute('id');
                 exportRoot.appendChild(pdfContent);
 
                 // Clean up copy buttons, re-highlight code
@@ -1484,10 +1465,8 @@ print(greeting("World"))
                     backgroundColor: pdfBg,
                     logging: false,
                     windowWidth: PDF_WIDTH,
-                    windowHeight: exportRoot.scrollHeight
+                    windowHeight: Math.ceil(exportRoot.getBoundingClientRect().height)
                 });
-                exportRoot.remove();
-                exportRoot = null;
 
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
@@ -1496,15 +1475,49 @@ print(greeting("World"))
                 const margin = 10;
                 const contentWidth = pageWidth - margin * 2;
                 const contentHeight = pageHeight - margin * 2;
-                const pixelsPerPage = Math.floor(canvas.width * contentHeight / contentWidth);
-                let sourceY = 0;
-                let page = 0;
+                const scale = canvas.width / exportRoot.getBoundingClientRect().width;
+                const pageHeightPx = canvas.width * contentHeight / contentWidth;
+                const contentRect = pdfContent.getBoundingClientRect();
+                const children = Array.from(pdfContent.children);
+                const blocks = [];
+                for (let index = 0; index < children.length; index += 1) {
+                    const element = children[index];
+                    const next = children[index + 1];
+                    if (element.getBoundingClientRect().height <= 0) continue;
 
-                while (sourceY < canvas.height) {
-                    const sliceHeight = Math.min(pixelsPerPage, canvas.height - sourceY);
+                    const rect = element.getBoundingClientRect();
+                    const nextRect = next?.getBoundingClientRect();
+                    const keepsHeadingWithNext = /^H[1-6]$/.test(element.tagName)
+                        && nextRect?.height > 0
+                        && !/^H[1-6]$/.test(next.tagName);
+                    blocks.push({
+                        top: (rect.top - contentRect.top) * scale,
+                        bottom: ((keepsHeadingWithNext ? nextRect.bottom : rect.bottom) - contentRect.top) * scale
+                    });
+                    if (keepsHeadingWithNext) index += 1;
+                }
+
+                // Choose page breaks between rendered blocks. This prevents a heading,
+                // paragraph, quote, table, or code block from being cut through the middle.
+                const pageBreaks = [0];
+                let pageStart = 0;
+                while (pageStart + pageHeightPx < canvas.height) {
+                    const target = pageStart + pageHeightPx;
+                    const crossing = blocks.find((block) => block.top < target && block.bottom > target);
+                    let nextBreak = crossing?.top ?? target;
+                    if (nextBreak <= pageStart + 4) nextBreak = crossing?.bottom ?? target;
+                    nextBreak = Math.min(canvas.height, Math.max(pageStart + 1, nextBreak));
+                    pageBreaks.push(nextBreak);
+                    pageStart = nextBreak;
+                }
+
+                for (let page = 0; page < pageBreaks.length; page += 1) {
+                    const sourceY = pageBreaks[page];
+                    const nextY = pageBreaks[page + 1] ?? canvas.height;
+                    const sliceHeight = nextY - sourceY;
                     const pageCanvas = document.createElement('canvas');
                     pageCanvas.width = canvas.width;
-                    pageCanvas.height = sliceHeight;
+                    pageCanvas.height = Math.ceil(sliceHeight);
                     pageCanvas.getContext('2d').drawImage(
                         canvas, 0, sourceY, canvas.width, sliceHeight,
                         0, 0, canvas.width, sliceHeight
@@ -1512,9 +1525,10 @@ print(greeting("World"))
 
                     if (page > 0) pdf.addPage();
                     pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, contentWidth, sliceHeight * contentWidth / canvas.width);
-                    sourceY += sliceHeight;
-                    page += 1;
                 }
+
+                exportRoot.remove();
+                exportRoot = null;
 
                 pdf.save(`markdown-preview-${new Date().toISOString().slice(0, 10)}.pdf`);
                 showToast('PDF 다운로드 완료!');
