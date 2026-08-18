@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" data-theme="light">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Highlight.js for code syntax -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme-dark">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-theme-light" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-theme-light">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <!-- Marked.js for Markdown parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
@@ -17,158 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        /* Dark Theme (Default) */
-        :root, [data-theme="dark"] {
-            --bg-primary: #0d1117;
-            --bg-secondary: #161b22;
-            --bg-card: #1c2128;
-            --bg-editor: #0d1117;
-            --accent-primary: #58a6ff;
-            --accent-secondary: #1f6feb;
-            --text-primary: #c9d1d9;
-            --text-secondary: #8b949e;
-            --text-muted: #6e7681;
-            --border-color: #30363d;
-            --gradient-accent: linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%);
-            --code-bg: #161b22;
-            --blockquote-border: #3b5998;
-            --link-color: #58a6ff;
-            --table-border: #30363d;
-            --table-alt-bg: #161b22;
-        }
-
-        /* Light Theme */
-        [data-theme="light"] {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f6f8fa;
-            --bg-card: #ffffff;
-            --bg-editor: #ffffff;
-            --accent-primary: #0969da;
-            --accent-secondary: #0550ae;
-            --text-primary: #24292f;
-            --text-secondary: #57606a;
-            --text-muted: #8c959f;
-            --border-color: #d0d7de;
-            --gradient-accent: linear-gradient(135deg, #0969da 0%, #0550ae 100%);
-            --code-bg: #f6f8fa;
-            --blockquote-border: #0969da;
-            --link-color: #0969da;
-            --table-border: #d0d7de;
-            --table-alt-bg: #f6f8fa;
-        }
-
-        html {
-            zoom: 0.9;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 20px;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Header */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            margin-bottom: 15px;
-            flex-shrink: 0;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        h1 {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1.5rem;
-            font-weight: 400;
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-btn {
-            padding: 10px 18px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 0;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 0.85rem;
-            font-family: 'Noto Sans KR', sans-serif;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .action-btn:hover {
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-        }
-
-        .action-btn.primary {
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-        }
-
-        .action-btn.primary:hover {
-            background: var(--accent-secondary);
-            border-color: var(--accent-secondary);
-        }
-
-        /* Theme Toggle */
-        .theme-toggle {
-            padding: 10px 18px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            transition: all 0.2s ease;
-            font-family: 'Noto Sans KR', sans-serif;
-        }
-
-        .theme-toggle:hover {
-            border-color: var(--accent-primary);
-        }
-
-        /* Editor Layout */
+/* Editor Layout */
         .editor-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -441,7 +289,7 @@
             transition: opacity 0.2s ease;
         }
 
-        [data-theme="light"] .drop-overlay {
+        :root .drop-overlay {
             background: rgba(246, 248, 250, 0.76);
         }
 
@@ -895,9 +743,6 @@
                 <button class="action-btn primary" id="download-pdf" title="화면에 보이는 미리보기를 PDF로 저장">
                     <span>PDF 저장</span>
                 </button>
-                <button class="theme-toggle" id="theme-toggle" aria-label="테마 변경">
-                    <span id="theme-icon"></span>
-                </button>
             </div>
         </header>
 
@@ -980,36 +825,6 @@
     </div>
 
     <script>
-        // Theme Toggle
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const html = document.documentElement;
-        const hljsDark = document.getElementById('hljs-theme-dark');
-        const hljsLight = document.getElementById('hljs-theme-light');
-
-        const savedTheme = localStorage.getItem('markdown-preview-theme') || 'light';
-        setTheme(savedTheme);
-
-        themeToggle.addEventListener('click', () => {
-            const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            setTheme(newTheme);
-            localStorage.setItem('markdown-preview-theme', newTheme);
-        });
-
-        function setTheme(theme) {
-            html.setAttribute('data-theme', theme);
-            themeIcon.textContent = theme === 'dark' ? 'D' : 'L';
-            themeToggle.setAttribute('aria-label', theme === 'dark' ? '라이트 모드로 변경' : '다크 모드로 변경');
-
-            if (theme === 'dark') {
-                hljsDark.disabled = false;
-                hljsLight.disabled = true;
-            } else {
-                hljsDark.disabled = true;
-                hljsLight.disabled = false;
-            }
-        }
-
         // Configure Marked.js for GFM (v12 API)
         marked.use({
             gfm: true,
@@ -1492,15 +1307,14 @@ print(greeting("World"))
                 // Build a fully isolated PDF container with its own scoped styles.
                 // This avoids conflicts with the page's existing CSS rules.
                 const PDF_WIDTH = 700;
-                const isDark = html.getAttribute('data-theme') === 'dark';
-                const pdfBg = isDark ? '#0d1117' : '#ffffff';
-                const pdfText = isDark ? '#c9d1d9' : '#24292f';
-                const pdfSecondary = isDark ? '#8b949e' : '#57606a';
-                const pdfMuted = isDark ? '#6e7681' : '#8c959f';
-                const pdfBorder = isDark ? '#30363d' : '#d0d7de';
-                const pdfCodeBg = isDark ? '#161b22' : '#f6f8fa';
-                const pdfLink = isDark ? '#58a6ff' : '#0969da';
-                const pdfBlockBorder = isDark ? '#3b5998' : '#0969da';
+                const pdfBg = '\1';
+                const pdfText = '\1';
+                const pdfSecondary = '\1';
+                const pdfMuted = '\1';
+                const pdfBorder = '\1';
+                const pdfCodeBg = '\1';
+                const pdfLink = '\1';
+                const pdfBlockBorder = '\1';
 
                 exportRoot = document.createElement('div');
                 exportRoot.className = 'pdf-export-clone';
