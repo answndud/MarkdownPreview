@@ -10,8 +10,9 @@
 4. [GitHub Flavored Markdown](#github-flavored-markdown)
 5. [실시간 미리보기](#실시간-미리보기)
 6. [파일 다운로드 구현](#파일-다운로드-구현)
-7. [LocalStorage 활용](#localstorage-활용)
-8. [UI/UX 구현](#uiux-구현)
+7. [화면 동일 PDF 저장](#화면-동일-pdf-저장)
+8. [LocalStorage 활용](#localstorage-활용)
+9. [UI/UX 구현](#uiux-구현)
 
 ---
 
@@ -483,6 +484,12 @@ document.getElementById('download-md').addEventListener('click', () => {
 
 ---
 
+## 화면 동일 PDF 저장
+
+PDF 버튼은 브라우저 인쇄 기능을 호출하지 않고 `html2canvas`로 현재 미리보기 패널을 시각적으로 캡처합니다. 패널 전체를 복제해 캡처하므로 일반 모드와 전체화면 읽기 모드의 스타일을 유지합니다. 캔버스를 A4 비율의 페이지 단위로 잘라 `jsPDF`에 넣고 파일을 즉시 다운로드합니다. `document.fonts.ready`와 미리보기 이미지 로딩을 기다리므로 웹폰트가 기본 글꼴로 바뀌거나 이미지가 빈칸으로 출력되는 문제를 줄입니다.
+
+이 방식은 텍스트를 PDF의 선택 가능한 텍스트 레이어로 변환하지 않고 화면을 이미지로 보존합니다. 따라서 브라우저별 PDF 레이아웃 차이 없이 시각적 형태를 우선적으로 유지합니다.
+
 ## LocalStorage 활용
 
 ### 자동 저장
@@ -767,4 +774,3 @@ marked.parse(markdown, { async: true })
 ---
 
 *작성일: 2026년 1월*
-

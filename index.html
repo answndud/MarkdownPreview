@@ -13,6 +13,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <!-- Marked.js for Markdown parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <!-- Direct visual PDF export (does not open the browser print dialog) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         /* Dark Theme (Default) */
         :root, [data-theme="dark"] {
@@ -848,6 +851,14 @@
                 min-width: 34px;
             }
         }
+        /* Keep the export capture free of controls that are only useful on screen. */
+        .pdf-export-clone {
+            position: absolute;
+            left: -100000px;
+            top: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
     </style>
 </head>
 <body>
@@ -880,6 +891,9 @@
                 </button>
                 <button class="action-btn primary" id="download-md">
                     <span>다운로드</span>
+                </button>
+                <button class="action-btn primary" id="download-pdf" title="화면에 보이는 미리보기를 PDF로 저장">
+                    <span>PDF 저장</span>
                 </button>
                 <button class="theme-toggle" id="theme-toggle" aria-label="테마 변경">
                     <span id="theme-icon"></span>
@@ -1448,6 +1462,91 @@ print(greeting("World"))
             a.click();
             URL.revokeObjectURL(url);
             showToast('다운로드 완료!');
+        });
+
+        // Capture the rendered preview and download a PDF directly.
+        document.getElementById('download-pdf').addEventListener('click', async () => {
+            const button = document.getElementById('download-pdf');
+            const originalLabel = button.textContent;
+            let exportRoot = null;
+            button.textContent = '준비 중...';
+            button.disabled = true;
+
+            try {
+                if (document.fonts && document.fonts.ready) {
+                    await document.fonts.ready;
+                }
+
+                if (!window.html2canvas || !window.jspdf?.jsPDF) {
+                    throw new Error('PDF 라이브러리를 불러오지 못했습니다');
+                }
+
+                const images = Array.from(preview.querySelectorAll('img'));
+                await Promise.all(images.map((image) => image.complete
+                    ? Promise.resolve()
+                    : new Promise((resolve) => {
+                        image.addEventListener('load', resolve, { once: true });
+                        image.addEventListener('error', resolve, { once: true });
+                    })));
+
+                // Clone the panel as well, so fullscreen reading styles remain identical.
+                exportRoot = document.getElementById('preview-panel').cloneNode(true);
+                exportRoot.classList.add('pdf-export-clone');
+                exportRoot.querySelector('.panel-header')?.remove();
+                exportRoot.querySelectorAll('.code-copy-btn').forEach((copyButton) => copyButton.remove());
+                exportRoot.style.width = `${preview.getBoundingClientRect().width}px`;
+                exportRoot.style.height = 'auto';
+                exportRoot.style.overflow = 'visible';
+                document.body.appendChild(exportRoot);
+
+                const canvas = await html2canvas(exportRoot, {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: false,
+                    backgroundColor: getComputedStyle(preview).backgroundColor,
+                    logging: false,
+                    windowWidth: exportRoot.scrollWidth
+                });
+                exportRoot.remove();
+                exportRoot = null;
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+                const pageWidth = 210;
+                const pageHeight = 297;
+                const margin = 10;
+                const contentWidth = pageWidth - margin * 2;
+                const contentHeight = pageHeight - margin * 2;
+                const pixelsPerPage = Math.floor(canvas.width * contentHeight / contentWidth);
+                let sourceY = 0;
+                let page = 0;
+
+                while (sourceY < canvas.height) {
+                    const sliceHeight = Math.min(pixelsPerPage, canvas.height - sourceY);
+                    const pageCanvas = document.createElement('canvas');
+                    pageCanvas.width = canvas.width;
+                    pageCanvas.height = sliceHeight;
+                    pageCanvas.getContext('2d').drawImage(
+                        canvas, 0, sourceY, canvas.width, sliceHeight,
+                        0, 0, canvas.width, sliceHeight
+                    );
+
+                    if (page > 0) pdf.addPage();
+                    pdf.addImage(pageCanvas.toDataURL('image/jpeg', 0.95), 'JPEG', margin, margin, contentWidth, sliceHeight * contentWidth / canvas.width);
+                    sourceY += sliceHeight;
+                    page += 1;
+                }
+
+                pdf.save(`markdown-preview-${new Date().toISOString().slice(0, 10)}.pdf`);
+                showToast('PDF 다운로드 완료!');
+            } catch (error) {
+                console.error('PDF export failed:', error);
+                showToast(error.message || 'PDF 저장에 실패했습니다');
+            } finally {
+                exportRoot?.remove();
+                button.textContent = originalLabel;
+                button.disabled = false;
+            }
         });
 
         // Clear
