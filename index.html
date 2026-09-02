@@ -84,10 +84,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 1.5rem;
             font-weight: 400;
-            background: var(--gradient-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #000000;
         }
 
         .header-actions {
@@ -223,7 +220,12 @@
             margin-bottom: 16px;
             font-weight: 600;
             line-height: 1.3;
-            color: var(--text-primary);
+            color: #000000;
+        }
+
+        .preview h1 a, .preview h2 a, .preview h3 a,
+        .preview h4 a, .preview h5 a, .preview h6 a {
+            color: var(--link-color);
         }
 
         .preview h1 {
@@ -241,7 +243,7 @@
         .preview h3 { font-size: 1.25em; }
         .preview h4 { font-size: 1em; }
         .preview h5 { font-size: 0.875em; }
-        .preview h6 { font-size: 0.85em; color: var(--text-muted); }
+        .preview h6 { font-size: 0.85em; color: #000000; }
 
         .preview p {
             margin: 0 0 1em;
@@ -593,7 +595,7 @@
         }
 
         #preview-panel.fullscreen .preview {
-            --preview-reading-width: 55%;
+            --preview-reading-width: 70%;
             --preview-line-height: 1.82;
             width: var(--preview-reading-width);
             max-width: none;
@@ -604,7 +606,7 @@
             box-sizing: border-box;
             align-self: center;
             color: var(--text-primary);
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 400;
             line-height: var(--preview-line-height);
         }
@@ -776,12 +778,12 @@
                 padding: 28px 22px;
                 margin-top: 0;
                 font-size: 16px;
-                line-height: 1.78;
+                line-height: 1.82;
             }
 
             #preview-panel.fullscreen .preview {
                 font-size: 16px;
-                line-height: 1.78;
+                line-height: 1.82;
             }
 
             #preview-panel.fullscreen .preview h1 {
@@ -900,13 +902,13 @@
                         <div class="font-size-control" id="preview-font-control">
                             <span class="reading-control-label">글자</span>
                             <button class="font-size-btn" id="preview-font-down">−</button>
-                            <span class="font-size-value" id="preview-font-value">17px</span>
+                            <span class="font-size-value" id="preview-font-value">16px</span>
                             <button class="font-size-btn" id="preview-font-up">+</button>
                         </div>
                         <div class="font-size-control" id="preview-width-control">
                             <span class="reading-control-label">폭</span>
                             <button class="font-size-btn" id="preview-width-down">−</button>
-                            <span class="font-size-value" id="preview-width-value">55%</span>
+                            <span class="font-size-value" id="preview-width-value">70%</span>
                             <button class="font-size-btn" id="preview-width-up">+</button>
                         </div>
                         <div class="font-size-control" id="preview-line-height-control">
@@ -1454,7 +1456,7 @@ print(greeting("World"))
                     .pdf-x h3 { font-size:1.25em; margin:20px 0 8px; }
                     .pdf-x h4 { font-size:1em; margin:16px 0 8px; }
                     .pdf-x h5 { font-size:0.875em; margin:14px 0 6px; }
-                    .pdf-x h6 { font-size:0.85em; margin:12px 0 6px; color:${pdfMuted}; }
+                    .pdf-x h6 { font-size:0.85em; margin:12px 0 6px; color:${pdfText}; }
                     .pdf-x p { margin:0 0 14px; }
                     .pdf-x a { color:${pdfLink}; text-decoration:none; }
                     .pdf-x strong { font-weight:600; }
@@ -1643,7 +1645,7 @@ print(greeting("World"))
         const FONT_MAX = 28;
         const FONT_STEP = 1;
 
-        let previewFontSize = parseInt(localStorage.getItem('preview-font-size')) || 17;
+        let previewFontSize = parseInt(localStorage.getItem('preview-font-size')) || 16;
 
         // Update display values on load
         document.getElementById('preview-font-value').textContent = previewFontSize + 'px';
@@ -1667,7 +1669,7 @@ print(greeting("World"))
         const WIDTH_MAX = 95;
         const WIDTH_STEP = 5;
 
-        let previewWidth = parseInt(localStorage.getItem('preview-reading-width-percent')) || 55;
+        let previewWidth = parseInt(localStorage.getItem('preview-reading-width-percent')) || 70;
 
         document.getElementById('preview-width-value').textContent = previewWidth + '%';
 
