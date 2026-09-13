@@ -595,7 +595,7 @@
         }
 
         #preview-panel.fullscreen .preview {
-            --preview-reading-width: 70%;
+            --preview-reading-width: 60%;
             --preview-line-height: 1.82;
             width: var(--preview-reading-width);
             max-width: none;
@@ -918,7 +918,7 @@
                         <div class="font-size-control" id="preview-width-control">
                             <span class="reading-control-label">폭</span>
                             <button class="font-size-btn" id="preview-width-down">−</button>
-                            <span class="font-size-value" id="preview-width-value">70%</span>
+                            <span class="font-size-value" id="preview-width-value">60%</span>
                             <button class="font-size-btn" id="preview-width-up">+</button>
                         </div>
                         <div class="font-size-control" id="preview-line-height-control">
@@ -1679,7 +1679,7 @@ print(greeting("World"))
         const WIDTH_MAX = 95;
         const WIDTH_STEP = 5;
 
-        let previewWidth = parseInt(localStorage.getItem('preview-reading-width-percent')) || 70;
+        let previewWidth = parseInt(localStorage.getItem('preview-reading-width-percent')) || 60;
 
         document.getElementById('preview-width-value').textContent = previewWidth + '%';
 
