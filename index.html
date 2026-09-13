@@ -587,20 +587,22 @@
             background: var(--bg-secondary);
             display: flex;
             align-items: center;
+            --preview-reading-width: 60%;
         }
 
         #preview-panel.fullscreen .panel-header {
             position: fixed;
             top: 0;
-            left: 0;
-            right: 0;
+            left: 50%;
+            right: auto;
+            width: var(--preview-reading-width);
+            transform: translateX(-50%);
             background: var(--bg-card);
             border-bottom: 1px solid var(--border-color);
             z-index: 10;
         }
 
         #preview-panel.fullscreen .preview {
-            --preview-reading-width: 60%;
             --preview-line-height: 1.82;
             width: var(--preview-reading-width);
             max-width: none;
@@ -616,7 +618,11 @@
             line-height: var(--preview-line-height);
         }
 
-        #preview-panel.fullscreen .preview p,
+        #preview-panel.fullscreen .preview p {
+            margin: 1.2em 0 1.4em;
+            line-height: inherit;
+        }
+
         #preview-panel.fullscreen .preview div {
             margin: 1.2em 0;
             line-height: inherit;
@@ -799,6 +805,10 @@
             #preview-panel.fullscreen .preview {
                 font-size: 17px;
                 line-height: 1.82;
+            }
+
+            #preview-panel.fullscreen .panel-header {
+                width: 100%;
             }
 
             #preview-panel.fullscreen .preview h1 {
@@ -1626,6 +1636,7 @@ print(greeting("World"))
             if (btn) { btn.textContent = '전체화면'; btn.title = '전체화면'; }
             document.getElementById('preview').style.fontSize = '';
             document.getElementById('preview').style.removeProperty('--preview-reading-width');
+            document.getElementById('preview-panel').style.removeProperty('--preview-reading-width');
             document.getElementById('preview').style.removeProperty('--preview-line-height');
             resetEditorAndPreviewScroll();
         }
@@ -1691,7 +1702,7 @@ print(greeting("World"))
 
         function applyPreviewWidth(width) {
             previewWidth = Math.min(WIDTH_MAX, Math.max(WIDTH_MIN, width));
-            document.getElementById('preview').style.setProperty('--preview-reading-width', previewWidth + '%');
+            document.getElementById('preview-panel').style.setProperty('--preview-reading-width', previewWidth + '%');
             document.getElementById('preview-width-value').textContent = previewWidth + '%';
             localStorage.setItem('preview-reading-width-percent', previewWidth);
         }
