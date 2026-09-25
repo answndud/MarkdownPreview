@@ -9,15 +9,29 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Highlight.js for code syntax -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-theme-light">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme-dark" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <!-- Marked.js for Markdown parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
     <!-- Direct visual PDF export (does not open the browser print dialog) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        (() => {
+            const savedTheme = localStorage.getItem('markdown-preview-theme');
+            const theme = savedTheme === 'dark' || savedTheme === 'light'
+                ? savedTheme
+                : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.documentElement.dataset.theme = theme;
+            document.documentElement.style.colorScheme = theme;
+            document.getElementById('hljs-theme-light').disabled = theme === 'dark';
+            document.getElementById('hljs-theme-dark').disabled = theme !== 'dark';
+        })();
+    </script>
     <style>
-/* Light Theme */
+        /* Light theme */
         :root {
+            color-scheme: light;
             --bg-primary: #ffffff;
             --bg-secondary: #f6f8fa;
             --bg-card: #ffffff;
@@ -34,6 +48,30 @@
             --link-color: #0969da;
             --table-border: #d0d7de;
             --table-alt-bg: #f6f8fa;
+            --overlay-bg: rgba(246, 248, 250, 0.76);
+            --shadow-color: rgba(27, 31, 36, 0.14);
+        }
+
+        :root[data-theme="dark"] {
+            color-scheme: dark;
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #161b22;
+            --bg-editor: #0d1117;
+            --accent-primary: #58a6ff;
+            --accent-secondary: #79c0ff;
+            --text-primary: #f0f6fc;
+            --text-secondary: #c9d1d9;
+            --text-muted: #8b949e;
+            --border-color: #30363d;
+            --gradient-accent: linear-gradient(135deg, #58a6ff 0%, #1f6feb 100%);
+            --code-bg: #161b22;
+            --blockquote-border: #58a6ff;
+            --link-color: #58a6ff;
+            --table-border: #30363d;
+            --table-alt-bg: #161b22;
+            --overlay-bg: rgba(13, 17, 23, 0.78);
+            --shadow-color: rgba(0, 0, 0, 0.42);
         }
 
         html {
@@ -84,7 +122,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 1.5rem;
             font-weight: 400;
-            color: #000000;
+            color: var(--text-primary);
         }
 
         .header-actions {
@@ -129,6 +167,13 @@
             border-color: var(--accent-secondary);
         }
 
+        .theme-toggle .theme-icon {
+            width: 1.1em;
+            text-align: center;
+            font-size: 1.05rem;
+            line-height: 1;
+        }
+
 /* Editor Layout */
         .editor-container {
             display: grid;
@@ -145,6 +190,7 @@
             border: 1px solid var(--border-color);
             border-radius: 0;
             overflow: hidden;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .panel-header {
@@ -155,6 +201,7 @@
             background: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .panel-title {
@@ -188,6 +235,13 @@
             border-color: var(--accent-primary);
         }
 
+        .action-btn:focus-visible,
+        .panel-btn:focus-visible,
+        .font-size-btn:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
         /* Editor */
         .editor {
             flex: 1;
@@ -201,6 +255,7 @@
             line-height: 1.7;
             color: var(--text-primary);
             outline: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .editor::placeholder {
@@ -216,6 +271,7 @@
             font-size: 1rem;
             font-weight: 400;
             line-height: 1.7;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* GitHub Flavored Markdown Styles */
@@ -225,7 +281,7 @@
             margin-bottom: 16px;
             font-weight: 600;
             line-height: 1.3;
-            color: #000000;
+            color: var(--text-primary);
         }
 
         .preview h1 a, .preview h2 a, .preview h3 a,
@@ -248,7 +304,7 @@
         .preview h3 { font-size: 1.25em; }
         .preview h4 { font-size: 1em; }
         .preview h5 { font-size: 0.875em; }
-        .preview h6 { font-size: 0.85em; color: #000000; }
+        .preview h6 { font-size: 0.85em; color: var(--text-primary); }
 
         .preview p {
             margin: 0 0 1em;
@@ -400,15 +456,11 @@
             align-items: center;
             justify-content: center;
             padding: 24px;
-            background: rgba(13, 17, 23, 0.72);
+            background: var(--overlay-bg);
             backdrop-filter: blur(6px);
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s ease;
-        }
-
-        :root .drop-overlay {
-            background: rgba(246, 248, 250, 0.76);
         }
 
         body.drag-over .drop-overlay {
@@ -421,7 +473,7 @@
             border: 2px dashed var(--accent-primary);
             border-radius: 0;
             background: var(--bg-card);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+            box-shadow: 0 20px 60px var(--shadow-color);
             text-align: center;
         }
 
@@ -459,7 +511,7 @@
             border-radius: 0;
             padding: 8px 0;
             min-width: 180px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px var(--shadow-color);
             display: none;
             z-index: 100;
         }
@@ -709,7 +761,7 @@
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 0;
-            box-shadow: 0 1px 2px rgba(27, 31, 36, 0.08);
+            box-shadow: 0 1px 2px var(--shadow-color);
         }
 
         .panel.fullscreen .font-size-control {
@@ -867,6 +919,10 @@
                         <div class="template-item" data-template="all">전체 문법 예제</div>
                     </div>
                 </div>
+                <button class="action-btn theme-toggle" id="theme-toggle" type="button" aria-pressed="false" title="다크 모드로 전환">
+                    <span class="icon theme-icon" aria-hidden="true">☾</span>
+                    <span class="theme-label">다크 모드</span>
+                </button>
                 <button class="action-btn" id="copy-md">
                     <span class="icon"></span>
                     <span>MD 복사</span>
@@ -1390,6 +1446,40 @@ print(greeting("World"))
                 updatePreview();
                 showToast('템플릿이 적용되었습니다');
             });
+        });
+
+        // Theme
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('.theme-icon');
+        const themeLabel = themeToggle.querySelector('.theme-label');
+        const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function applyTheme(theme, persist = true) {
+            const isDark = theme === 'dark';
+            html.dataset.theme = theme;
+            html.style.colorScheme = theme;
+            document.getElementById('hljs-theme-light').disabled = isDark;
+            document.getElementById('hljs-theme-dark').disabled = !isDark;
+            themeToggle.setAttribute('aria-pressed', String(isDark));
+            themeToggle.title = isDark ? '라이트 모드로 전환' : '다크 모드로 전환';
+            themeIcon.textContent = isDark ? '☀' : '☾';
+            themeLabel.textContent = isDark ? '라이트 모드' : '다크 모드';
+
+            if (persist) {
+                localStorage.setItem('markdown-preview-theme', theme);
+            }
+        }
+
+        applyTheme(html.dataset.theme || (systemThemeQuery.matches ? 'dark' : 'light'), false);
+
+        themeToggle.addEventListener('click', () => {
+            applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark');
+        });
+
+        systemThemeQuery.addEventListener?.('change', (event) => {
+            if (!localStorage.getItem('markdown-preview-theme')) {
+                applyTheme(event.matches ? 'dark' : 'light', false);
+            }
         });
 
         // Copy Markdown

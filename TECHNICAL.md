@@ -521,12 +521,15 @@ if (savedContent) {
 ### 테마 저장
 
 ```javascript
-// 저장
+// 사용자가 선택한 테마 저장
 localStorage.setItem('markdown-preview-theme', 'dark');
 
-// 불러오기
-const savedTheme = localStorage.getItem('markdown-preview-theme') || 'dark';
+// 저장된 테마가 없으면 운영체제 설정을 사용
+const savedTheme = localStorage.getItem('markdown-preview-theme');
+const theme = savedTheme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 ```
+
+페이지 초기화 시 `data-theme`와 `color-scheme`을 먼저 설정해 테마가 깜빡이지 않도록 합니다. 사용자가 직접 테마를 선택하면 다음 방문에도 같은 테마를 유지하며, 아직 선택하지 않은 경우 운영체제의 다크 모드 변경도 반영합니다. Highlight.js의 `github` / `github-dark` 스타일시트도 현재 테마에 맞춰 함께 전환합니다.
 
 ### LocalStorage vs SessionStorage
 
