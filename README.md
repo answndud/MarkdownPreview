@@ -5,7 +5,8 @@
 ## ✨ 기능
 
 - ⚡ **실시간 변환**: 입력과 동시에 HTML 미리보기
-- 🐙 **GitHub Flavored Markdown (GFM)**: GitHub 스타일 마크다운 완벽 지원
+- 🐙 **GitHub Flavored Markdown (GFM)**: GitHub 스타일 표·체크박스·취소선 지원
+- 🔗 **제목 링크·각주·알림**: 중복 제목 ID, `[^각주]`, `> [!NOTE]` 등 지원
 - 🧮 **수학 수식**: KaTeX로 LaTeX 블록 수식과 인라인 수식 표시
 - 🎨 **코드 문법 하이라이팅**: 다양한 프로그래밍 언어 지원
 - 📋 **템플릿 제공**: README, 블로그, 할일 목록 등
@@ -48,6 +49,21 @@
 console.log('Hello!');
 ```
 ```
+
+### 제목 링크, 각주, 알림
+
+제목에는 GitHub 방식의 ID가 자동 생성되어 `[이동](#제목)`으로 이동할 수 있습니다. 중복 제목은 `제목-1`, `제목-2`처럼 구분합니다.
+
+```markdown
+본문의 각주[^note]
+
+[^note]: 각주 설명
+
+> [!NOTE]
+> 참고 사항
+```
+
+알림 유형은 `NOTE`, `TIP`, `IMPORTANT`, `WARNING`, `CAUTION`입니다. 표는 내용에 맞는 폭과 작은 셀 여백으로 표시하고, `:---:`, `---:` 정렬을 유지합니다. 넓은 표는 가로 스크롤로 확인할 수 있습니다.
 
 ### 수학 수식
 
@@ -121,6 +137,8 @@ $$
 
 ## 🔧 사용된 라이브러리
 
+- [marked-gfm-heading-id](https://github.com/markedjs/marked-gfm-heading-id) - 제목 ID
+- [marked-footnote](https://github.com/bent10/marked-extensions/tree/main/packages/footnote) - 각주
 - [KaTeX](https://katex.org/) - LaTeX 수식 렌더링
 - [Marked.js](https://marked.js.org/) - Markdown 파싱
 - [Highlight.js](https://highlightjs.org/) - 코드 문법 하이라이팅

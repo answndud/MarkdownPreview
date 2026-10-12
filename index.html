@@ -13,6 +13,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <!-- Marked.js for Markdown parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-gfm-heading-id@3.2.0/lib/index.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-footnote@1.2.4/dist/index.umd.js"></script>
     <!-- KaTeX for LaTeX math (parsed before Markdown escapes are consumed) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
@@ -280,6 +282,8 @@
             flex: 1;
             padding: 20px;
             overflow-y: auto;
+            min-width: 0;
+            overflow-wrap: anywhere;
             background: var(--bg-card);
             font-size: 1rem;
             font-weight: 400;
@@ -380,9 +384,48 @@
             border-left: 4px solid var(--blockquote-border);
         }
 
-        .preview blockquote p {
+        .preview blockquote > :last-child {
             margin-bottom: 0;
         }
+
+        .preview .markdown-alert {
+            padding: 12px 16px;
+            border-left-color: var(--link-color);
+        }
+
+        .preview .markdown-alert-title {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--link-color);
+        }
+
+        .preview .markdown-alert-warning,
+        .preview .markdown-alert-caution {
+            border-left-color: #b7791f;
+        }
+
+        .preview .footnotes {
+            margin-top: 24px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85em;
+        }
+
+        .preview .footnotes .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .preview .footnotes p { margin-bottom: 0.4em; }
+        .preview sup { line-height: 0; }
+        .preview :is(h1, h2, h3, h4, h5, h6) { scroll-margin-top: 16px; }
 
         /* Code */
         .preview code {
@@ -411,18 +454,32 @@
         }
 
         /* Table */
+        .preview .table-scroll {
+            max-width: 100%;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+
         .preview table {
-            width: 100%;
-            margin: 16px 0;
+            width: max-content;
+            max-width: 100%;
+            overflow-wrap: normal;
+            margin: 0;
+            font-size: 0.9em;
+            line-height: 1.45;
             border-collapse: collapse;
             border-spacing: 0;
         }
 
         .preview th, .preview td {
-            padding: 10px 14px;
+            padding: 5px 9px;
             border: 1px solid var(--table-border);
             text-align: left;
         }
+
+        .preview :is(th, td)[align="center"] { text-align: center; }
+        .preview :is(th, td)[align="right"] { text-align: right; }
+        .preview th > :last-child, .preview td > :last-child { margin-bottom: 0; }
 
         .preview th {
             background: var(--bg-secondary);
@@ -443,6 +500,7 @@
         /* Image */
         .preview img {
             max-width: 100%;
+            height: auto;
             border-radius: 0;
             margin: 16px 0;
         }
@@ -757,7 +815,7 @@
             line-height: 1.6;
         }
 
-        #preview-panel.fullscreen .preview table,
+        #preview-panel.fullscreen .preview .table-scroll,
         #preview-panel.fullscreen .preview img,
         #preview-panel.fullscreen .preview hr {
             margin-top: 1.5em;
@@ -1076,6 +1134,8 @@
             extensions: mathExtensions
         });
 
+        marked.use(markedGfmHeadingId.gfmHeadingId(), markedFootnote());
+
         // Editor & Preview
         const html = document.documentElement;
         const editor = document.getElementById('editor');
@@ -1086,6 +1146,36 @@
         function updatePreview() {
             const markdown = editor.value;
             preview.innerHTML = marked.parse(markdown);
+
+            preview.querySelectorAll('table').forEach(table => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'table-scroll';
+                wrapper.tabIndex = 0;
+                wrapper.setAttribute('role', 'region');
+                wrapper.setAttribute('aria-label', '표 (가로 스크롤 가능)');
+                table.before(wrapper);
+                wrapper.appendChild(table);
+            });
+
+            // GitHub alerts are a blockquote whose first line is an alert marker.
+            preview.querySelectorAll('blockquote').forEach(quote => {
+                const paragraph = quote.firstElementChild;
+                const first = paragraph?.firstChild;
+                if (paragraph?.tagName !== 'P' || first?.nodeType !== Node.TEXT_NODE) return;
+                const match = /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\](?:\n|$)/.exec(first.textContent);
+                if (!match) return;
+                first.textContent = first.textContent.slice(match[0].length);
+                if (!first.textContent) {
+                    first.remove();
+                    if (paragraph.firstChild?.nodeName === 'BR') paragraph.firstChild.remove();
+                }
+                if (!paragraph.hasChildNodes()) paragraph.remove();
+                quote.classList.add('markdown-alert', `markdown-alert-${match[1].toLowerCase()}`);
+                const title = document.createElement('p');
+                title.className = 'markdown-alert-title';
+                title.textContent = match[1][0] + match[1].slice(1).toLowerCase();
+                quote.prepend(title);
+            });
 
             // Re-highlight code blocks + add copy buttons
             preview.querySelectorAll('pre code').forEach(block => {
@@ -1632,12 +1722,17 @@ print(greeting("World"))
                     .pdf-x li.task-list-item { list-style:none; margin-left:-1.5em; }
                     .pdf-x input[type='checkbox'] { margin-right:6px; }
                     .pdf-x blockquote { margin:14px 0; padding:2px 0 2px 1em; border-left:4px solid ${pdfBlockBorder}; color:${pdfSecondary}; }
-                    .pdf-x blockquote p { margin-bottom:0; }
+                    .pdf-x blockquote > :last-child { margin-bottom:0; }
                     .pdf-x code { font-family:'JetBrains Mono',monospace; font-size:0.85em; padding:0.15em 0.3em; background:${pdfCodeBg}; }
                     .pdf-x pre { margin:14px 0; padding:14px; background:${pdfCodeBg}; border:1px solid ${pdfBorder}; overflow:hidden; white-space:pre-wrap; }
                     .pdf-x pre code { display:block; padding:0; background:transparent; font-size:0.85em; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-word; }
-                    .pdf-x table { width:100%; border-collapse:collapse; margin:10px 0; }
-                    .pdf-x th,.pdf-x td { padding:6px 10px; border:1px solid ${pdfBorder}; text-align:left; }
+                    .pdf-x .footnotes .sr-only { display:none; }
+                    .pdf-x .markdown-alert-title { font-weight:600; color:${pdfLink}; }
+                    .pdf-x .table-scroll { overflow:visible; margin:10px 0; }
+                    .pdf-x table { width:auto; max-width:100%; font-size:0.9em; line-height:1.45; border-collapse:collapse; margin:10px 0; }
+                    .pdf-x th,.pdf-x td { padding:5px 9px; border:1px solid ${pdfBorder}; text-align:left; }
+                    .pdf-x :is(th,td)[align="center"] { text-align:center; }
+                    .pdf-x :is(th,td)[align="right"] { text-align:right; }
                     .pdf-x th { background:${pdfCodeBg}; font-weight:600; }
                     .pdf-x hr { margin:16px 0; border:none; border-top:2px solid ${pdfBorder}; }
                     .pdf-x img { display:block; max-width:100%; height:auto; margin:14px 0; }
