@@ -13,6 +13,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <!-- Marked.js for Markdown parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.0/marked.min.js"></script>
+    <!-- KaTeX for LaTeX math (parsed before Markdown escapes are consumed) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
     <!-- Direct visual PDF export (does not open the browser print dialog) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -29,6 +32,16 @@
         })();
     </script>
     <style>
+        .math-block {
+            margin: 1em 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .math-block .katex-display {
+            margin: 0.5em 0;
+        }
+
         /* Light theme */
         :root {
             color-scheme: light;
@@ -1019,10 +1032,48 @@
     </div>
 
     <script>
+        function renderMath(token) {
+            return katex.renderToString(token.text, {
+                displayMode: token.displayMode,
+                throwOnError: false,
+                trust: false
+            });
+        }
+
+        // Tokenize math before Markdown can consume LaTeX backslashes or underscores.
+        // Code spans and fenced blocks keep Marked's normal literal rendering.
+        const mathExtensions = [
+            {
+                name: 'blockMath',
+                level: 'block',
+                start(src) { return src.search(/(?:^|\n) {0,3}(?:\$\$|\\\[)/); },
+                tokenizer(src) {
+                    const match = /^(?: {0,3}\$\$([\s\S]+?)\$\$| {0,3}\\\[([\s\S]+?)\\\])[ \t]*(?:\n|$)/.exec(src);
+                    if (match) {
+                        return { type: 'blockMath', raw: match[0], text: (match[1] ?? match[2]).trim(), displayMode: true };
+                    }
+                },
+                renderer(token) { return `<div class="math-block">${renderMath(token)}</div>\n`; }
+            },
+            {
+                name: 'inlineMath',
+                level: 'inline',
+                start(src) { return src.search(/\$|\\\(/); },
+                tokenizer(src) {
+                    const match = /^(?:\$\$([^\n]+?)\$\$|\$(?!\$)(\S(?:[^$\n]*?\S)?)\$(?!\d)|\\\(([^\n]+?)\\\))/.exec(src);
+                    if (match) {
+                        return { type: 'inlineMath', raw: match[0], text: match[1] ?? match[2] ?? match[3], displayMode: match[1] !== undefined };
+                    }
+                },
+                renderer: renderMath
+            }
+        ];
+
         // Configure Marked.js for GFM (v12 API)
         marked.use({
             gfm: true,
-            breaks: true
+            breaks: true,
+            extensions: mathExtensions
         });
 
         // Editor & Preview

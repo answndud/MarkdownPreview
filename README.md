@@ -6,6 +6,7 @@
 
 - ⚡ **실시간 변환**: 입력과 동시에 HTML 미리보기
 - 🐙 **GitHub Flavored Markdown (GFM)**: GitHub 스타일 마크다운 완벽 지원
+- 🧮 **수학 수식**: KaTeX로 LaTeX 블록 수식과 인라인 수식 표시
 - 🎨 **코드 문법 하이라이팅**: 다양한 프로그래밍 언어 지원
 - 📋 **템플릿 제공**: README, 블로그, 할일 목록 등
 - 📄 **복사 기능**: Markdown / HTML 복사
@@ -46,6 +47,16 @@
 ```javascript
 console.log('Hello!');
 ```
+```
+
+### 수학 수식
+
+`$$ ... $$` 또는 `\[ ... \]`는 가운데 정렬된 블록 수식으로, `$ ... $` 또는 `\( ... \)`는 문장 안의 수식으로 표시됩니다. 코드 블록과 인라인 코드 안의 수식은 원문을 유지합니다.
+
+```latex
+$$
+70 \times 10^9 \times 2\text{ bytes}=140\times10^9\text{ bytes}
+$$
 ```
 
 ## 🎨 코드 하이라이팅 지원 언어
@@ -110,6 +121,7 @@ console.log('Hello!');
 
 ## 🔧 사용된 라이브러리
 
+- [KaTeX](https://katex.org/) - LaTeX 수식 렌더링
 - [Marked.js](https://marked.js.org/) - Markdown 파싱
 - [Highlight.js](https://highlightjs.org/) - 코드 문법 하이라이팅
 
