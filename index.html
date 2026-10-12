@@ -356,12 +356,12 @@
         }
 
         .preview li {
-            margin-bottom: 2px;
+            margin-bottom: 4px;
             line-height: inherit;
         }
 
         .preview li + li {
-            margin-top: 0;
+            margin-top: 4px;
         }
 
         /* Checkboxes */
@@ -378,13 +378,10 @@
 
         /* Blockquote */
         .preview blockquote {
-            box-sizing: border-box;
-            width: fit-content;
-            max-width: 100%;
-            margin: 1em 0;
-            padding: 0 0.9em;
+            margin: 1.2em 0;
+            padding: 0 1em;
             color: var(--text-secondary);
-            border-left: 3px solid var(--blockquote-border);
+            border-left: 4px solid var(--blockquote-border);
         }
 
         .preview blockquote > :last-child {
@@ -392,7 +389,7 @@
         }
 
         .preview .markdown-alert {
-            padding: 9px 12px;
+            padding: 12px 16px;
             border-left-color: var(--link-color);
         }
 
@@ -427,12 +424,6 @@
         }
 
         .preview .footnotes p { margin-bottom: 0.4em; }
-        .preview .math-block {
-            width: fit-content;
-            max-width: 100%;
-            margin: 1em auto;
-            overflow-x: auto;
-        }
         .preview sup { line-height: 0; }
         .preview :is(h1, h2, h3, h4, h5, h6) { scroll-margin-top: 16px; }
 
@@ -447,25 +438,19 @@
         }
 
         .preview pre {
-            box-sizing: border-box;
-            width: fit-content;
-            max-width: 100%;
-            margin: 1em 0;
-            padding: 10px 12px;
+            margin: 1.2em 0;
+            padding: 16px;
             background: var(--code-bg);
             border-radius: 0;
-            overflow: auto;
+            overflow-x: auto;
             border: 1px solid var(--border-color);
         }
 
         .preview pre code {
-            display: block;
-            width: max-content;
-            min-width: 100%;
             padding: 0;
             background: transparent;
-            font-size: 0.82rem;
-            line-height: 1.55;
+            font-size: 0.85rem;
+            line-height: 1.6;
         }
 
         /* Table */
@@ -507,22 +492,17 @@
 
         /* Horizontal Rule */
         .preview hr {
-            width: min(100%, 10rem);
-            margin: 20px 0;
+            margin: 24px 0;
             border: none;
             border-top: 2px solid var(--border-color);
         }
 
         /* Image */
         .preview img {
-            display: block;
-            width: auto;
-            max-width: min(100%, 720px);
-            max-height: 70vh;
+            max-width: 100%;
             height: auto;
-            object-fit: contain;
             border-radius: 0;
-            margin: 12px 0;
+            margin: 16px 0;
         }
 
         /* Word Count */
@@ -822,16 +802,8 @@
         }
 
         #preview-panel.fullscreen .preview blockquote {
-            margin: 1.1em 0;
-            padding: 0.1em 0 0.1em 0.9em;
-        }
-
-        #preview-panel.fullscreen .preview .markdown-alert {
-            padding: 10px 14px;
-        }
-
-        #preview-panel.fullscreen .preview .math-block {
-            margin: 1.2em auto;
+            margin: 1.4em 0;
+            padding: 0.1em 0 0.1em 1.1em;
         }
 
         #preview-panel.fullscreen .preview blockquote p {
@@ -839,9 +811,8 @@
         }
 
         #preview-panel.fullscreen .preview pre {
-            margin: 1.2em 0;
-            padding: 12px 14px;
-            line-height: 1.55;
+            margin: 1.5em 0;
+            line-height: 1.6;
         }
 
         #preview-panel.fullscreen .preview .table-scroll,
@@ -1750,23 +1721,21 @@ print(greeting("World"))
                     .pdf-x li { margin-bottom:4px; line-height:1.65; }
                     .pdf-x li.task-list-item { list-style:none; margin-left:-1.5em; }
                     .pdf-x input[type='checkbox'] { margin-right:6px; }
-                    .pdf-x blockquote { box-sizing:border-box; width:fit-content; max-width:100%; margin:12px 0; padding:2px 0 2px 0.9em; border-left:3px solid ${pdfBlockBorder}; color:${pdfSecondary}; }
+                    .pdf-x blockquote { margin:14px 0; padding:2px 0 2px 1em; border-left:4px solid ${pdfBlockBorder}; color:${pdfSecondary}; }
                     .pdf-x blockquote > :last-child { margin-bottom:0; }
                     .pdf-x code { font-family:'JetBrains Mono',monospace; font-size:0.85em; padding:0.15em 0.3em; background:${pdfCodeBg}; }
-                    .pdf-x pre { box-sizing:border-box; width:fit-content; max-width:100%; margin:12px 0; padding:10px 12px; background:${pdfCodeBg}; border:1px solid ${pdfBorder}; overflow:hidden; white-space:pre-wrap; }
-                    .pdf-x pre code { display:block; padding:0; background:transparent; font-size:0.82em; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-word; }
+                    .pdf-x pre { margin:14px 0; padding:14px; background:${pdfCodeBg}; border:1px solid ${pdfBorder}; overflow:hidden; white-space:pre-wrap; }
+                    .pdf-x pre code { display:block; padding:0; background:transparent; font-size:0.85em; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-word; }
                     .pdf-x .footnotes .sr-only { display:none; }
-                    .pdf-x .markdown-alert { padding:9px 12px; }
                     .pdf-x .markdown-alert-title { font-weight:600; color:${pdfLink}; }
-                    .pdf-x .math-block { width:fit-content; max-width:100%; margin:12px auto; overflow:hidden; }
                     .pdf-x .table-scroll { overflow:visible; margin:10px 0; }
                     .pdf-x table { width:auto; max-width:100%; font-size:0.9em; line-height:1.45; border-collapse:collapse; margin:10px 0; }
                     .pdf-x th,.pdf-x td { padding:5px 9px; border:1px solid ${pdfBorder}; text-align:left; }
                     .pdf-x :is(th,td)[align="center"] { text-align:center; }
                     .pdf-x :is(th,td)[align="right"] { text-align:right; }
                     .pdf-x th { background:${pdfCodeBg}; font-weight:600; }
-                    .pdf-x hr { width:min(100%, 10rem); margin:16px 0; border:none; border-top:2px solid ${pdfBorder}; }
-                    .pdf-x img { display:block; width:auto; max-width:min(100%, 636px); max-height:850px; height:auto; object-fit:contain; margin:12px 0; }
+                    .pdf-x hr { margin:16px 0; border:none; border-top:2px solid ${pdfBorder}; }
+                    .pdf-x img { display:block; max-width:100%; height:auto; margin:14px 0; }
                     .pdf-x > h1,.pdf-x > h2,.pdf-x > h3,.pdf-x > h4,.pdf-x > h5,.pdf-x > h6,
                     .pdf-x > p,.pdf-x > ul,.pdf-x > ol,.pdf-x > blockquote,.pdf-x > pre,
                     .pdf-x > table,.pdf-x > hr,.pdf-x > img { break-inside:avoid; page-break-inside:avoid; }
