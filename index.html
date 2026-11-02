@@ -968,6 +968,97 @@
             pointer-events: none;
             z-index: -1;
         }
+
+        /* Browser-like colors and controls, retaining the editor layout and both themes. */
+        :root {
+            --bg-primary: white;
+            --bg-secondary: white;
+            --bg-card: white;
+            --bg-editor: white;
+            --text-primary: black;
+            --text-secondary: black;
+            --text-muted: #555;
+            --border-color: #888;
+            --accent-primary: #555;
+            --accent-secondary: #333;
+            --code-bg: #f3f3f3;
+            --blockquote-border: #888;
+            --link-color: #0000ee;
+            --table-border: #888;
+            --table-alt-bg: white;
+            --overlay-bg: rgba(255, 255, 255, 0.8);
+            --shadow-color: transparent;
+        }
+        :root[data-theme="dark"] {
+            --bg-primary: #161616;
+            --bg-secondary: #161616;
+            --bg-card: #161616;
+            --bg-editor: #161616;
+            --text-primary: #eee;
+            --text-secondary: #eee;
+            --text-muted: #bbb;
+            --border-color: #888;
+            --accent-primary: #bbb;
+            --accent-secondary: #eee;
+            --code-bg: #262626;
+            --blockquote-border: #888;
+            --link-color: #9bbcff;
+            --table-border: #888;
+            --table-alt-bg: #161616;
+            --overlay-bg: rgba(22, 22, 22, 0.8);
+            --shadow-color: transparent;
+        }
+        .action-btn, .action-btn:hover, .action-btn.primary, .action-btn.primary:hover,
+        .panel-btn, .panel-btn:hover, .font-size-btn, .font-size-btn:hover,
+        .code-copy-btn, .code-copy-btn:hover {
+            appearance: auto;
+            background: revert;
+            color: revert;
+            border: revert;
+            box-shadow: none;
+        }
+        .action-btn, .panel-btn, .font-size-btn, .code-copy-btn {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-size: 0.85rem;
+            font-weight: 400;
+            line-height: 1.25;
+        }
+        .action-btn { padding: 5px 9px; gap: 5px; }
+        .panel-btn { padding: 4px 8px; }
+        .font-size-btn { width: 26px; height: 26px; padding: 0; font-size: 1rem; }
+        .code-copy-btn { padding: 3px 7px; font-size: 0.75rem; }
+        /* Keep the reading surface distinct and let its header take up real space. */
+        #preview-panel.fullscreen { background: #eee; }
+        :root[data-theme="dark"] #preview-panel.fullscreen { background: #303030; }
+        #preview-panel.fullscreen .panel-header {
+            position: relative;
+            top: auto;
+            left: auto;
+            right: auto;
+            transform: none;
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        #preview-panel.fullscreen .panel-actions { flex-wrap: wrap; }
+        #preview-panel.fullscreen .preview {
+            min-height: 0;
+            margin: 0 auto;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+        }
+        @media (max-width: 768px) {
+            #preview-panel.fullscreen .preview { width: 100%; }
+        }
+        .font-size-control, .templates-menu, .drop-overlay-content { box-shadow: none; }
+        .drop-overlay { backdrop-filter: none; }
+        .template-item:hover { background: var(--code-bg); color: var(--text-primary); }
+        .toast { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .preview a, footer a { text-decoration: underline; }
+        .preview input[type="checkbox"] { accent-color: auto; }
+        .action-btn:focus-visible, .panel-btn:focus-visible, .font-size-btn:focus-visible,
+        .editor:focus-visible, .code-copy-btn:focus-visible { outline: auto; outline-offset: 2px; }
     </style>
 </head>
 <body>
