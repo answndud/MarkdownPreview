@@ -710,6 +710,7 @@
             background: var(--bg-secondary);
             display: flex;
             align-items: center;
+            padding-left: 90px;
             padding-right: 174px;
             --preview-reading-width: 60%;
         }
@@ -725,8 +726,8 @@
             padding: 8px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            border-radius: 0;
+            box-shadow: none;
         }
 
         #preview-panel.fullscreen .panel-title {
@@ -747,6 +748,64 @@
             margin-right: 0;
             padding: 1px 3px 1px 5px;
         }
+
+        .preview-scroll-btn { display: none; }
+        #preview-panel.fullscreen .preview-scroll-btn {
+            display: block;
+            align-self: center;
+            padding: 2px 6px;
+        }
+
+        .fullscreen-only { display: none; }
+        #preview-panel.fullscreen .fullscreen-only { display: flex; }
+        #reading-dock {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: 74px;
+            padding: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+        }
+        #preview-toc {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: min(260px, calc(100% - 16px));
+            min-height: 86px;
+            max-height: calc(100% - 16px);
+            overflow-y: auto;
+            padding: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            z-index: 1;
+        }
+        #preview-toc[hidden] { display: none; }
+        #preview-toc .toc-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        #preview-toc .toc-item {
+            display: block;
+            width: 100%;
+            padding: 4px 2px 4px calc((var(--heading-level) - 1) * 10px + 2px);
+            border: 0;
+            background: transparent;
+            color: var(--text-primary);
+            text-align: left;
+            overflow-wrap: anywhere;
+            cursor: pointer;
+        }
+        #preview-toc .toc-item:hover,
+        #preview-toc .toc-item[aria-current="location"] { background: var(--code-bg); }
 
         #preview-panel.fullscreen .preview {
             --preview-line-height: 2.02;
@@ -976,6 +1035,9 @@
                 min-width: 34px;
             }
         }
+        @media (max-width: 600px) {
+            #preview-panel.fullscreen { padding-left: 0; }
+        }
         /* Keep the export capture free of controls that are only useful on screen. */
         .pdf-export-clone {
             position: absolute;
@@ -1144,6 +1206,7 @@
                         <span> Preview</span>
                     </div>
                     <div class="panel-actions">
+                        <button class="panel-btn preview-scroll-btn" id="preview-scroll-top" type="button" aria-label="미리보기 맨 위로" title="맨 위로">↑</button>
                         <div class="font-size-control" id="preview-font-control">
                             <span class="reading-control-label">글자</span>
                             <button class="font-size-btn" id="preview-font-down">−</button>
@@ -1163,8 +1226,19 @@
                             <button class="font-size-btn" id="preview-line-height-up">+</button>
                         </div>
                         <button class="panel-btn" id="fullscreen-preview" title="전체화면">전체화면</button>
+                        <button class="panel-btn preview-scroll-btn" id="preview-scroll-bottom" type="button" aria-label="미리보기 맨 아래로" title="맨 아래로">↓</button>
                     </div>
                 </div>
+                <div class="fullscreen-only" id="reading-dock">
+                    <button class="panel-btn" id="preview-toc-toggle" type="button" aria-controls="preview-toc" aria-expanded="false">목차</button>
+                </div>
+                <nav id="preview-toc" aria-label="문서 목차" hidden>
+                    <div class="toc-header">
+                        <strong>목차</strong>
+                        <button class="panel-btn" id="preview-toc-close" type="button" aria-label="목차 닫기">×</button>
+                    </div>
+                    <div id="preview-toc-list"></div>
+                </nav>
                 <div class="preview" id="preview"></div>
             </div>
         </div>
@@ -1233,12 +1307,99 @@
         const html = document.documentElement;
         const editor = document.getElementById('editor');
         const preview = document.getElementById('preview');
+        const toc = document.getElementById('preview-toc');
+        const tocList = document.getElementById('preview-toc-list');
+        const tocToggle = document.getElementById('preview-toc-toggle');
+
+        function closeToc() {
+            toc.hidden = true;
+            tocToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        function updateCurrentTocItem() {
+            if (toc.hidden) return;
+            const headings = Array.from(preview.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+            const buttons = tocList.querySelectorAll('.toc-item');
+            const marker = preview.getBoundingClientRect().top + 48;
+            let current = -1;
+            headings.forEach((heading, index) => {
+                if (heading.getBoundingClientRect().top <= marker) current = index;
+            });
+            if (current === -1 && headings.length &&
+                headings[0].getBoundingClientRect().top < preview.getBoundingClientRect().bottom) current = 0;
+            const range = preview.scrollHeight - preview.clientHeight;
+            if (range > 0 && preview.scrollTop >= range - 1 && headings.length &&
+                headings[headings.length - 1].getBoundingClientRect().top < preview.getBoundingClientRect().bottom) {
+                current = headings.length - 1;
+            }
+            buttons.forEach((button, index) => {
+                if (index === current) button.setAttribute('aria-current', 'location');
+                else button.removeAttribute('aria-current');
+            });
+        }
+
+        function buildToc() {
+            tocList.replaceChildren();
+            const headings = preview.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            if (!headings.length) {
+                tocList.textContent = '제목이 없습니다.';
+                return;
+            }
+            headings.forEach(heading => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'toc-item';
+                button.style.setProperty('--heading-level', heading.tagName.slice(1));
+                button.textContent = heading.textContent.trim() || '(제목 없음)';
+                button.addEventListener('click', () => {
+                    preview.scrollTop += heading.getBoundingClientRect().top - preview.getBoundingClientRect().top;
+                    updateCurrentTocItem();
+                });
+                tocList.appendChild(button);
+            });
+        }
+
+        tocToggle.addEventListener('click', () => {
+            if (!toc.hidden) return closeToc();
+            buildToc();
+            toc.hidden = false;
+            tocToggle.setAttribute('aria-expanded', 'true');
+            updateCurrentTocItem();
+        });
+        preview.addEventListener('scroll', updateCurrentTocItem);
+        document.getElementById('preview-toc-close').addEventListener('click', () => {
+            closeToc();
+            tocToggle.focus();
+        });
+
+        // Match scroll progress in both panes without feeding programmatic scrolls back.
+        const pendingScrollPositions = new WeakMap();
+        function syncScroll(source, target) {
+            const pending = pendingScrollPositions.get(source);
+            pendingScrollPositions.delete(source);
+            if (pending !== undefined && Math.abs(source.scrollTop - pending) < 1) return;
+            if (document.getElementById('preview-panel').classList.contains('fullscreen')) return;
+
+            const sourceRange = source.scrollHeight - source.clientHeight;
+            const targetRange = Math.max(0, target.scrollHeight - target.clientHeight);
+            if (sourceRange <= 0) return;
+            const next = Math.max(0, Math.min(1, source.scrollTop / sourceRange)) * targetRange;
+            if (Math.abs(target.scrollTop - next) < 1) return;
+            target.scrollTop = next;
+            pendingScrollPositions.set(target, target.scrollTop);
+        }
+        editor.addEventListener('scroll', () => syncScroll(editor, preview));
+        preview.addEventListener('scroll', () => syncScroll(preview, editor));
         const wordCount = document.getElementById('word-count');
         const dropOverlay = document.getElementById('drop-overlay');
 
         function updatePreview() {
             const markdown = editor.value;
             preview.innerHTML = marked.parse(markdown);
+            if (!toc.hidden) {
+                buildToc();
+                updateCurrentTocItem();
+            }
 
             preview.querySelectorAll('table').forEach(table => {
                 const wrapper = document.createElement('div');
@@ -1953,6 +2114,13 @@ print(greeting("World"))
         });
 
         // Fullscreen
+        document.getElementById('preview-scroll-top').addEventListener('click', () => {
+            preview.scrollTop = 0;
+        });
+        document.getElementById('preview-scroll-bottom').addEventListener('click', () => {
+            preview.scrollTop = preview.scrollHeight;
+        });
+
         function resetEditorAndPreviewScroll() {
             editor.scrollTop = 0;
             preview.scrollTop = 0;
@@ -1960,6 +2128,7 @@ print(greeting("World"))
         }
 
         function exitFullscreen(panel) {
+            closeToc();
             panel.classList.remove('fullscreen');
             const btn = panel.querySelector('[id^="fullscreen-"]');
             if (btn) { btn.textContent = '전체화면'; btn.title = '전체화면'; }
