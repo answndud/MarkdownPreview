@@ -2188,6 +2188,13 @@ print(greeting("World"))
             }
         });
 
+        // Mouse and touch clicks should not leave the browser's focus ring behind.
+        document.addEventListener('click', (event) => {
+            if (event.detail === 0) return;
+            const button = event.target.closest('button');
+            if (button && document.activeElement === button) button.blur();
+        });
+
         // Font size controls
         const FONT_MIN = 13;
         const FONT_MAX = 28;
