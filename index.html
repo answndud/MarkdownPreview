@@ -232,6 +232,16 @@
             gap: 8px;
         }
 
+        #editor-panel .panel-header { gap: 12px; }
+        #editor-panel .panel-title { flex: 1; min-width: 0; }
+        #editor-panel .panel-actions { flex-shrink: 0; }
+        .document-name {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
         .panel-actions {
             display: flex;
             gap: 8px;
@@ -510,19 +520,6 @@
             vertical-align: middle;
         }
 
-        /* Word Count */
-        .word-count {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .drop-hint {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
         /* Drag & drop markdown import */
         .drop-overlay {
             position: fixed;
@@ -686,9 +683,6 @@
                 display: none;
             }
 
-            .drop-hint {
-                display: none;
-            }
         }
 
         /* Scrollbar */
@@ -724,6 +718,7 @@
         /* Fullscreen preview - centered reading mode */
         #preview-panel.fullscreen {
             background: var(--bg-secondary);
+            border-top: 0;
             display: flex;
             align-items: center;
             --preview-reading-width: 60%;
@@ -825,6 +820,23 @@
         }
         #preview-toc .toc-item:hover,
         #preview-toc .toc-item[aria-current="location"] { background: var(--code-bg); }
+
+        .fullscreen-document-name { display: none; }
+        #preview-panel.fullscreen .fullscreen-document-name {
+            display: block;
+            flex-shrink: 0;
+            width: var(--preview-reading-width);
+            padding: 12px 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-top: 0;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
 
         #preview-panel.fullscreen .preview {
             --preview-line-height: 2.02;
@@ -1007,6 +1019,7 @@
 
         /* Mobile fullscreen fix */
         @media (max-width: 768px) {
+            #preview-panel.fullscreen .fullscreen-document-name { width: 100%; }
             #preview-panel.fullscreen .preview,
             #editor-panel.fullscreen .editor {
                 width: 100%;
@@ -1170,9 +1183,7 @@
             <div class="panel" id="editor-panel">
                 <div class="panel-header">
                     <div class="panel-title">
-                        <span> Markdown</span>
-                        <span class="word-count" id="word-count">0 자 · 0 단어</span>
-                        <span class="drop-hint">.md 파일을 페이지에 드롭해 열기</span>
+                        <span class="document-name" id="document-name" title="제목 없는 문서">제목 없는 문서</span>
                     </div>
                     <div class="panel-actions">
                         <button class="panel-btn" id="clear-btn">지우기</button>
@@ -1235,6 +1246,7 @@
                         <button class="panel-btn preview-scroll-btn" id="preview-scroll-bottom" type="button" aria-label="미리보기 맨 아래로" title="맨 아래로">↓</button>
                     </div>
                 </div>
+                <div class="fullscreen-document-name" id="fullscreen-document-name" title="제목 없는 문서">제목 없는 문서</div>
                 <div class="preview" id="preview"></div>
             </div>
         </div>
@@ -1302,6 +1314,17 @@
         // Editor & Preview
         const html = document.documentElement;
         const editor = document.getElementById('editor');
+        const documentName = document.getElementById('document-name');
+        function setDocumentName(name) {
+            const label = name || '제목 없는 문서';
+            documentName.textContent = label;
+            documentName.title = label;
+            const fullscreenDocumentName = document.getElementById('fullscreen-document-name');
+            fullscreenDocumentName.textContent = label;
+            fullscreenDocumentName.title = label;
+            if (name) localStorage.setItem('markdown-filename', name);
+            else localStorage.removeItem('markdown-filename');
+        }
         const preview = document.getElementById('preview');
         const toc = document.getElementById('preview-toc');
         const tocList = document.getElementById('preview-toc-list');
@@ -1448,7 +1471,6 @@
         }
         editor.addEventListener('scroll', () => syncScroll(editor, preview));
         preview.addEventListener('scroll', () => syncScroll(preview, editor));
-        const wordCount = document.getElementById('word-count');
         const dropOverlay = document.getElementById('drop-overlay');
 
         function updatePreview() {
@@ -1513,11 +1535,6 @@
                 pre.appendChild(btn);
             });
 
-            // Update word count
-            const chars = markdown.length;
-            const words = markdown.trim() ? markdown.trim().split(/\s+/).length : 0;
-            wordCount.textContent = `${chars.toLocaleString()} 자 · ${words.toLocaleString()} 단어`;
-
             // Save to localStorage
             localStorage.setItem('markdown-content', markdown);
         }
@@ -1555,6 +1572,7 @@
             const reader = new FileReader();
             reader.onload = () => {
                 editor.value = reader.result;
+                setDocumentName(file.name);
                 editor.setSelectionRange(0, 0);
                 updatePreview();
                 if (!document.getElementById('preview-panel').classList.contains('fullscreen')) {
@@ -1613,6 +1631,7 @@
 
         // Load saved content
         const savedContent = localStorage.getItem('markdown-content');
+        if (savedContent) setDocumentName(localStorage.getItem('markdown-filename'));
         if (savedContent) {
             editor.value = savedContent;
             updatePreview();
@@ -1901,6 +1920,7 @@ print(greeting("World"))
             item.addEventListener('click', () => {
                 const template = item.dataset.template;
                 editor.value = templates[template];
+                setDocumentName('');
                 updatePreview();
                 showToast('템플릿이 적용되었습니다');
             });
@@ -2172,6 +2192,7 @@ print(greeting("World"))
         // Clear
         document.getElementById('clear-btn').addEventListener('click', () => {
             editor.value = '';
+            setDocumentName('');
             updatePreview();
             editor.focus();
         });
