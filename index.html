@@ -311,6 +311,7 @@
         }
 
         .preview h1 {
+            font-family: inherit;
             font-size: 2em;
             padding-bottom: 0.3em;
             border-bottom: 1px solid var(--border-color);
@@ -403,8 +404,8 @@
             color: var(--link-color);
         }
 
-        .preview .markdown-alert-warning,
-        .preview .markdown-alert-caution {
+        .preview .markdown-alert.markdown-alert-warning,
+        .preview .markdown-alert.markdown-alert-caution {
             border-left-color: #b7791f;
         }
 
@@ -453,7 +454,7 @@
         .preview pre code {
             padding: 0;
             background: transparent;
-            font-size: 0.85rem;
+            font-size: 0.85em;
             line-height: 1.6;
         }
 
@@ -506,7 +507,7 @@
             max-width: 100%;
             height: auto;
             border-radius: 0;
-            margin: 16px 0;
+            vertical-align: middle;
         }
 
         /* Word Count */
@@ -836,15 +837,6 @@
             line-height: inherit;
         }
 
-        #preview-panel.fullscreen .preview div {
-            margin: 1.2em 0;
-            line-height: inherit;
-        }
-
-        #preview-panel.fullscreen .preview span {
-            line-height: inherit;
-        }
-
         #preview-panel.fullscreen .preview ul,
         #preview-panel.fullscreen .preview ol {
             margin: 1.15em 0 1.35em;
@@ -906,7 +898,6 @@
         }
 
         #preview-panel.fullscreen .preview .table-scroll,
-        #preview-panel.fullscreen .preview img,
         #preview-panel.fullscreen .preview hr {
             margin-top: 1.5em;
             margin-bottom: 1.5em;
@@ -1011,13 +1002,6 @@
                 max-width: none;
                 padding: 28px 22px;
                 margin-top: 0;
-                font-size: 18px;
-                line-height: 2.02;
-            }
-
-            #preview-panel.fullscreen .preview {
-                font-size: 18px;
-                line-height: 2.02;
             }
 
             #preview-panel.fullscreen .preview h1 {
