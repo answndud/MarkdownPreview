@@ -301,7 +301,7 @@
             background: var(--bg-card);
             font-size: 1rem;
             font-weight: 400;
-            line-height: 1.7;
+            line-height: 1.87;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
@@ -311,7 +311,7 @@
             margin-top: 24px;
             margin-bottom: 16px;
             font-weight: 600;
-            line-height: 1.3;
+            line-height: 1.25;
             color: var(--text-primary);
         }
 
@@ -322,18 +322,18 @@
 
         .preview h1 {
             font-family: inherit;
-            font-size: 2em;
+            font-size: 1.75em;
             padding-bottom: 0.3em;
             border-bottom: 1px solid var(--border-color);
         }
 
         .preview h2 {
-            font-size: 1.5em;
+            font-size: 1.3em;
             padding-bottom: 0.3em;
             border-bottom: 1px solid var(--border-color);
         }
 
-        .preview h3 { font-size: 1.25em; }
+        .preview h3 { font-size: 1.15em; }
         .preview h4 { font-size: 1em; }
         .preview h5 { font-size: 0.875em; }
         .preview h6 { font-size: 0.85em; color: var(--text-primary); }
@@ -367,22 +367,27 @@
 
         .preview ul, .preview ol {
             margin: 0 0 1em;
-            padding-left: 2em;
+            padding-left: 1.5em;
+        }
+
+        .preview :is(ul, ol) :is(ul, ol) {
+            margin-top: 0;
+            margin-bottom: 0;
         }
 
         .preview li {
-            margin-bottom: 4px;
+            margin-bottom: 0;
             line-height: inherit;
         }
 
         .preview li + li {
-            margin-top: 4px;
+            margin-top: 0.25em;
         }
 
         /* Checkboxes */
         .preview input[type="checkbox"] {
             margin-right: 8px;
-            transform: scale(1.2);
+            vertical-align: middle;
             accent-color: var(--accent-primary);
         }
 
@@ -393,7 +398,7 @@
 
         /* Blockquote */
         .preview blockquote {
-            margin: 1.2em 0;
+            margin: 0 0 1em;
             padding: 0 1em;
             color: var(--text-secondary);
             border-left: 4px solid var(--blockquote-border);
@@ -404,7 +409,7 @@
         }
 
         .preview .markdown-alert {
-            padding: 12px 16px;
+            padding: 0.5em 1em;
             border-left-color: var(--link-color);
         }
 
@@ -413,6 +418,9 @@
             font-weight: 600;
             color: var(--link-color);
         }
+
+        .preview .markdown-alert > :first-child { margin-top: 0; }
+        .preview .markdown-alert > :last-child { margin-bottom: 0; }
 
         .preview .markdown-alert.markdown-alert-warning,
         .preview .markdown-alert.markdown-alert-caution {
@@ -453,8 +461,10 @@
         }
 
         .preview pre {
-            margin: 1.2em 0;
-            padding: 16px;
+            margin: 0 0 1em;
+            padding: 1em;
+            font-size: 0.85em;
+            line-height: 1.45;
             background: var(--code-bg);
             border-radius: 0;
             overflow-x: auto;
@@ -464,15 +474,15 @@
         .preview pre code {
             padding: 0;
             background: transparent;
-            font-size: 0.85em;
-            line-height: 1.6;
+            font-size: 1em;
+            line-height: inherit;
         }
 
         /* Table */
         .preview .table-scroll {
             max-width: 100%;
             overflow-x: auto;
-            margin: 12px 0;
+            margin: 0 0 1em;
         }
 
         .preview table {
@@ -480,14 +490,14 @@
             max-width: 100%;
             overflow-wrap: normal;
             margin: 0;
-            font-size: 0.9em;
-            line-height: 1.45;
+            font-size: 1em;
+            line-height: inherit;
             border-collapse: collapse;
             border-spacing: 0;
         }
 
         .preview th, .preview td {
-            padding: 5px 9px;
+            padding: 0.375em 0.8125em;
             border: 1px solid var(--table-border);
             text-align: left;
         }
@@ -508,9 +518,11 @@
         /* Horizontal Rule */
         .preview hr {
             margin: 24px 0;
-            border: none;
-            border-top: 2px solid var(--border-color);
+            height: 0.25em;
+            border: 0;
+            background: #e3e4e8;
         }
+        :root[data-theme="dark"] .preview hr { background: #30363d; }
 
         /* Image */
         .preview img {
@@ -839,7 +851,7 @@
         }
 
         #preview-panel.fullscreen .preview {
-            --preview-line-height: 2.02;
+            --preview-line-height: 1.87;
             width: var(--preview-reading-width);
             max-width: none;
             min-height: 0;
@@ -853,77 +865,6 @@
             font-size: 18px;
             font-weight: 400;
             line-height: var(--preview-line-height);
-        }
-
-        #preview-panel.fullscreen .preview p {
-            margin: 1.2em 0 1.4em;
-            line-height: inherit;
-        }
-
-        #preview-panel.fullscreen .preview ul,
-        #preview-panel.fullscreen .preview ol {
-            margin: 1.15em 0 1.35em;
-            padding-left: 1.6em;
-        }
-
-        #preview-panel.fullscreen .preview li {
-            margin: 0.42em 0;
-            line-height: inherit;
-        }
-
-        #preview-panel.fullscreen .preview h1,
-        #preview-panel.fullscreen .preview h2,
-        #preview-panel.fullscreen .preview h3 {
-            line-height: 1.3;
-        }
-
-        #preview-panel.fullscreen .preview h1 {
-            margin-top: 0;
-            margin-bottom: 1em;
-            font-size: 2.1em;
-            font-weight: 600;
-        }
-
-        #preview-panel.fullscreen .preview h2 {
-            margin-top: 2.2em;
-            margin-bottom: 0.8em;
-            font-size: 1.55em;
-            font-weight: 600;
-        }
-
-        #preview-panel.fullscreen .preview h3 {
-            margin-top: 1.9em;
-            margin-bottom: 0.7em;
-            font-size: 1.25em;
-            font-weight: 600;
-        }
-
-        #preview-panel.fullscreen .preview h4,
-        #preview-panel.fullscreen .preview h5,
-        #preview-panel.fullscreen .preview h6 {
-            margin-top: 1.6em;
-            margin-bottom: 0.65em;
-            line-height: 1.35;
-        }
-
-        #preview-panel.fullscreen .preview blockquote {
-            margin: 1.4em 0;
-            padding: 0.1em 0 0.1em 1.1em;
-        }
-
-        #preview-panel.fullscreen .preview blockquote p {
-            margin: 0.7em 0;
-        }
-
-        #preview-panel.fullscreen .preview pre {
-            margin: 1.5em 0;
-            line-height: 1.6;
-        }
-
-        #preview-panel.fullscreen .preview .table-scroll,
-        #preview-panel.fullscreen .preview hr {
-            margin-top: 1.5em;
-            margin-bottom: 1.5em;
         }
 
         /* Reading controls - hidden by default, shown in fullscreen */
@@ -1026,15 +967,6 @@
                 max-width: none;
                 padding: 28px 22px;
                 margin-top: 0;
-            }
-
-            #preview-panel.fullscreen .preview h1 {
-                font-size: 1.75em;
-            }
-
-            #preview-panel.fullscreen .preview h2 {
-                margin-top: 1.9em;
-                font-size: 1.38em;
             }
 
             #preview-panel.fullscreen .panel-actions {
@@ -1238,7 +1170,7 @@
                         <div class="font-size-control" id="preview-line-height-control">
                             <span class="reading-control-label">행간</span>
                             <button class="font-size-btn" id="preview-line-height-down">−</button>
-                            <span class="font-size-value" id="preview-line-height-value">2.02</span>
+                            <span class="font-size-value" id="preview-line-height-value">1.87</span>
                             <button class="font-size-btn" id="preview-line-height-up">+</button>
                         </div>
                         </div>
@@ -2309,7 +2241,7 @@ print(greeting("World"))
         const LINE_HEIGHT_MAX = 2.4;
         const LINE_HEIGHT_STEP = 0.05;
 
-        let previewLineHeight = parseFloat(localStorage.getItem('preview-line-height')) || 2.02;
+        let previewLineHeight = parseFloat(localStorage.getItem('preview-line-height')) || 1.87;
 
         document.getElementById('preview-line-height-value').textContent = previewLineHeight.toFixed(2);
 
