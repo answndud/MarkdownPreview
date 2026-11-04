@@ -140,6 +140,10 @@
             color: var(--text-primary);
         }
 
+        .header-left h1 {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
         .header-actions {
             display: flex;
             gap: 10px;
@@ -710,7 +714,6 @@
             background: var(--bg-secondary);
             display: flex;
             align-items: center;
-            padding-left: 90px;
             padding-right: 174px;
             --preview-reading-width: 60%;
         }
@@ -729,6 +732,9 @@
             border-radius: 0;
             box-shadow: none;
         }
+        #preview-panel.fullscreen .panel-header.toc-open {
+            width: min(286px, calc(100% - 16px));
+        }
 
         #preview-panel.fullscreen .panel-title {
             display: none;
@@ -740,6 +746,10 @@
             align-items: stretch;
             gap: 6px;
             min-width: 0;
+            max-height: calc(100vh - 34px);
+        }
+        #preview-panel.fullscreen .panel-actions > :not(#preview-toc) {
+            flex-shrink: 0;
         }
 
         #preview-panel.fullscreen .font-size-control {
@@ -764,32 +774,36 @@
 
         .fullscreen-only { display: none; }
         #preview-panel.fullscreen .fullscreen-only { display: flex; }
-        #reading-dock {
-            position: absolute;
-            left: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            width: 74px;
-            max-height: calc(100% - 16px);
-            padding: 8px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            z-index: 1;
-        }
-        #reading-dock.is-open { width: min(260px, calc(100% - 16px)); }
+        #preview-toc-toggle { justify-content: center; }
         #preview-toc {
             width: 100%;
             min-height: 0;
             overflow-y: auto;
         }
         #preview-toc[hidden] { display: none; }
+        #preview-toc .toc-row {
+            display: flex;
+            align-items: flex-start;
+            padding-left: calc((var(--heading-level) - 1) * 2px);
+        }
+        #preview-toc .toc-row[hidden] { display: none; }
+        #preview-toc .toc-expand, #preview-toc .toc-spacer {
+            flex: 0 0 9px;
+            width: 9px;
+            padding: 4px 0;
+        }
+        #preview-toc .toc-expand {
+            border: 0;
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 0.6rem;
+            cursor: pointer;
+        }
         #preview-toc .toc-item {
             display: block;
-            width: 100%;
-            padding: 4px 2px 4px calc((var(--heading-level) - 1) * 10px + 2px);
+            flex: 1;
+            min-width: 0;
+            padding: 4px 2px;
             border: 0;
             background: transparent;
             color: var(--text-primary);
@@ -1028,9 +1042,6 @@
                 min-width: 34px;
             }
         }
-        @media (max-width: 600px) {
-            #preview-panel.fullscreen { padding-left: 0; }
-        }
         /* Keep the export capture free of controls that are only useful on screen. */
         .pdf-export-clone {
             position: absolute;
@@ -1200,6 +1211,10 @@
                     </div>
                     <div class="panel-actions">
                         <button class="panel-btn preview-scroll-btn" id="preview-scroll-top" type="button" aria-label="미리보기 맨 위로" title="맨 위로">↑</button>
+                        <button class="panel-btn fullscreen-only" id="preview-toc-toggle" type="button" aria-controls="preview-toc" aria-expanded="false">목차</button>
+                        <nav id="preview-toc" aria-label="문서 목차" hidden>
+                            <div id="preview-toc-list"></div>
+                        </nav>
                         <button class="panel-btn fullscreen-only" id="preview-settings-toggle" type="button" aria-controls="preview-settings" aria-expanded="false">설정</button>
                         <div id="preview-settings" hidden>
                         <div class="font-size-control" id="preview-font-control">
@@ -1224,12 +1239,6 @@
                         <button class="panel-btn" id="fullscreen-preview" title="전체화면">전체화면</button>
                         <button class="panel-btn preview-scroll-btn" id="preview-scroll-bottom" type="button" aria-label="미리보기 맨 아래로" title="맨 아래로">↓</button>
                     </div>
-                </div>
-                <div class="fullscreen-only" id="reading-dock">
-                    <button class="panel-btn" id="preview-toc-toggle" type="button" aria-controls="preview-toc" aria-expanded="false">목차</button>
-                    <nav id="preview-toc" aria-label="문서 목차" hidden>
-                        <div id="preview-toc-list"></div>
-                    </nav>
                 </div>
                 <div class="preview" id="preview"></div>
             </div>
@@ -1302,10 +1311,30 @@
         const toc = document.getElementById('preview-toc');
         const tocList = document.getElementById('preview-toc-list');
         const tocToggle = document.getElementById('preview-toc-toggle');
+        const collapsedTocItems = new Set();
+        let tocEntries = [];
+
+        function updateTocVisibility() {
+            tocEntries.forEach(entry => {
+                let ancestor = entry.parent;
+                let hidden = false;
+                while (ancestor) {
+                    if (collapsedTocItems.has(ancestor.key)) { hidden = true; break; }
+                    ancestor = ancestor.parent;
+                }
+                entry.row.hidden = hidden;
+                if (entry.expand) {
+                    const expanded = !collapsedTocItems.has(entry.key);
+                    entry.expand.textContent = expanded ? '▾' : '▸';
+                    entry.expand.setAttribute('aria-expanded', String(expanded));
+                    entry.expand.setAttribute('aria-label', `${entry.title} 하위 목차 ${expanded ? '접기' : '펼치기'}`);
+                }
+            });
+        }
 
         function closeToc() {
             toc.hidden = true;
-            document.getElementById('reading-dock').classList.remove('is-open');
+            tocToggle.closest('.panel-header').classList.remove('toc-open');
             tocToggle.setAttribute('aria-expanded', 'false');
         }
 
@@ -1313,50 +1342,94 @@
             if (toc.hidden) return;
             const headings = Array.from(preview.querySelectorAll('h1, h2, h3, h4, h5, h6'));
             const buttons = tocList.querySelectorAll('.toc-item');
-            const marker = preview.getBoundingClientRect().top + 48;
+            const previewRect = preview.getBoundingClientRect();
+            const marker = previewRect.top + previewRect.height / 2;
             let current = -1;
             headings.forEach((heading, index) => {
                 if (heading.getBoundingClientRect().top <= marker) current = index;
             });
             if (current === -1 && headings.length &&
                 headings[0].getBoundingClientRect().top < preview.getBoundingClientRect().bottom) current = 0;
-            const range = preview.scrollHeight - preview.clientHeight;
-            if (range > 0 && preview.scrollTop >= range - 1 && headings.length &&
-                headings[headings.length - 1].getBoundingClientRect().top < preview.getBoundingClientRect().bottom) {
-                current = headings.length - 1;
-            }
-            buttons.forEach((button, index) => {
-                if (index === current) button.setAttribute('aria-current', 'location');
+            let visibleEntry = tocEntries[current];
+            while (visibleEntry && visibleEntry.row.hidden) visibleEntry = visibleEntry.parent;
+            buttons.forEach(button => {
+                if (visibleEntry && button === visibleEntry.button) button.setAttribute('aria-current', 'location');
                 else button.removeAttribute('aria-current');
             });
+            const active = visibleEntry?.button;
+            if (active) {
+                const itemRect = active.getBoundingClientRect();
+                const tocRect = toc.getBoundingClientRect();
+                if (itemRect.top < tocRect.top) toc.scrollTop -= tocRect.top - itemRect.top;
+                else if (itemRect.bottom > tocRect.bottom) toc.scrollTop += itemRect.bottom - tocRect.bottom;
+            }
         }
 
         function buildToc() {
             tocList.replaceChildren();
-            const headings = preview.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            tocEntries = [];
+            const headings = Array.from(preview.querySelectorAll('h1, h2, h3, h4, h5, h6'));
             if (!headings.length) {
                 tocList.textContent = '제목이 없습니다.';
                 return;
             }
-            headings.forEach(heading => {
+            const ancestors = [];
+            headings.forEach((heading, index) => {
+                const level = Number(heading.tagName.slice(1));
+                while (ancestors.length && ancestors[ancestors.length - 1].level >= level) ancestors.pop();
+                const title = heading.textContent.trim() || '(제목 없음)';
+                const row = document.createElement('div');
+                row.className = 'toc-row';
+                row.style.setProperty('--heading-level', level);
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'toc-item';
-                button.style.setProperty('--heading-level', heading.tagName.slice(1));
-                button.textContent = heading.textContent.trim() || '(제목 없음)';
+                button.textContent = title;
                 button.addEventListener('click', () => {
-                    preview.scrollTop += heading.getBoundingClientRect().top - preview.getBoundingClientRect().top;
+                    const previewRect = preview.getBoundingClientRect();
+                    const headingRect = heading.getBoundingClientRect();
+                    const scale = preview.offsetWidth ? previewRect.width / preview.offsetWidth : 1;
+                    const nextHeading = headings.slice(index + 1).find(next => Number(next.tagName.slice(1)) <= level);
+                    const lastContent = preview.lastElementChild;
+                    const sectionEnd = nextHeading ? nextHeading.getBoundingClientRect().top :
+                        (lastContent ? lastContent.getBoundingClientRect().bottom : headingRect.bottom);
+                    const sectionMiddle = (headingRect.top + Math.max(headingRect.bottom, sectionEnd)) / 2;
+                    const distance = sectionMiddle - (previewRect.top + previewRect.height / 2);
+                    preview.scrollTop += distance / (scale || 1);
                     updateCurrentTocItem();
                 });
-                tocList.appendChild(button);
+                const entry = { level, title, key: `${index}:${level}:${title}`, parent: ancestors[ancestors.length - 1], row, button };
+                if (headings[index + 1] && Number(headings[index + 1].tagName.slice(1)) > level) {
+                    const expand = document.createElement('button');
+                    expand.type = 'button';
+                    expand.className = 'toc-expand';
+                    expand.addEventListener('click', () => {
+                        if (collapsedTocItems.has(entry.key)) collapsedTocItems.delete(entry.key);
+                        else collapsedTocItems.add(entry.key);
+                        updateTocVisibility();
+                        updateCurrentTocItem();
+                    });
+                    entry.expand = expand;
+                    row.appendChild(expand);
+                } else {
+                    const spacer = document.createElement('span');
+                    spacer.className = 'toc-spacer';
+                    spacer.setAttribute('aria-hidden', 'true');
+                    row.appendChild(spacer);
+                }
+                row.appendChild(button);
+                tocList.appendChild(row);
+                tocEntries.push(entry);
+                ancestors.push(entry);
             });
+            updateTocVisibility();
         }
 
         tocToggle.addEventListener('click', () => {
             if (!toc.hidden) return closeToc();
             buildToc();
             toc.hidden = false;
-            document.getElementById('reading-dock').classList.add('is-open');
+            tocToggle.closest('.panel-header').classList.add('toc-open');
             tocToggle.setAttribute('aria-expanded', 'true');
             updateCurrentTocItem();
         });
