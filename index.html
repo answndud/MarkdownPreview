@@ -1544,8 +1544,13 @@
             const reader = new FileReader();
             reader.onload = () => {
                 editor.value = reader.result;
+                editor.setSelectionRange(0, 0);
                 updatePreview();
-                editor.focus();
+                if (!document.getElementById('preview-panel').classList.contains('fullscreen')) {
+                    editor.focus({ preventScroll: true });
+                }
+                resetEditorAndPreviewScroll();
+                updateCurrentTocItem();
                 showToast(`${file.name} 파일을 불러왔습니다`);
             };
             reader.onerror = () => {
